@@ -4084,15 +4084,25 @@ async function borrarEquipo(id) {
   // Comprobar si hay jugadores o entrenadores asignados
   var snapJ = await getDocs(query(collection(db, "alumnos"), where("grupo", "==", eq.nombre)));
   var snapE = await getDocs(query(collection(db, "entrenadores"), where("grupo", "==", eq.nombre)));
-  if (snapJ.size > 0 || snapE.size > 0) {
-    toast("No se puede borrar: hay " + snapJ.size + " jugadores y " + snapE.size + " entrenadores asignados a este equipo. Reasígnalos primero.", "error");
-    return;
+  var nJ = snapJ.size, nE = snapE.size;
+  var aviso = "¿Borrar el equipo \"" + eq.nombre + "\"?";
+  if (nJ > 0 || nE > 0) {
+    aviso = "El equipo \"" + eq.nombre + "\" tiene " + nJ + " jugador" + (nJ===1?"":"es") + " y " + nE + " entrenador" + (nE===1?"":"es") + " asignados.\n\n" +
+      "Si continúas, se quedarán como \"Sin asignar\" (no se borran) — desde ahí podrás reasignarlos a otro equipo o eliminarlos definitivamente cuando quieras.\n\n¿Continuar y borrar el equipo?";
   }
-  if (!confirm("¿Borrar el equipo \"" + eq.nombre + "\"?")) return;
+  if (!confirm(aviso)) return;
   try {
+    if (nJ > 0) {
+      for (var i = 0; i < snapJ.docs.length; i++) { await updateDoc(doc(db, "alumnos", snapJ.docs[i].id), { grupo: "" }); }
+    }
+    if (nE > 0) {
+      for (var k = 0; k < snapE.docs.length; k++) { await updateDoc(doc(db, "entrenadores", snapE.docs[k].id), { grupo: "" }); }
+    }
     await deleteDoc(doc(db, "equipos", id));
-    toast("Equipo borrado", "ok");
+    toast(nJ > 0 || nE > 0 ? "Equipo borrado. " + (nJ+nE) + " persona(s) quedaron sin asignar." : "Equipo borrado", "ok");
     await cargarEquipos();
+    if (typeof cargarJugadores === "function") await cargarJugadores();
+    if (typeof cargarEntrenadores === "function") await cargarEntrenadores();
   } catch(e) {
     toast("Error: " + e.message, "error");
   }
@@ -4258,7 +4268,7 @@ async function pintarJugadoresFiltrado() {
           '<div class="eq-header-meta"><span class="lim"><b>' + lista.length + '</b> jugador' + (lista.length === 1 ? '' : 'es') + ' pendiente' + (lista.length === 1 ? '' : 's') + ' de equipo</span></div>' +
         '</div>' +
         '</div>' +
-        '<div class="eq-header-aviso">Estos jugadores aún no tienen equipo. Edita cada uno para asignarlo y saldrá automáticamente de aquí.</div>';
+        '<div class="eq-header-aviso">Estos jugadores no tienen equipo. Edítalos para reasignarlos, o pulsa 🗑️ dos veces (primero da de baja, la segunda elimina para siempre) si quieres borrarlos.</div>';
     } else if (equipoFiltradoActivo) {
       var eqInfo = equiposGlobales.find(function(x) { return x.nombre === equipoFiltradoActivo; });
       var categoria = eqInfo ? eqInfo.categoria : "";
