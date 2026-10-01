@@ -1202,13 +1202,19 @@ tr.pc-row-cap .pc-sticky{box-shadow:inset 3px 0 0 0 var(--amarillo);}
           ════════════════════════════════════════ -->
     <div class="sec" id="sec-delegado">
       <div class="sec-titulo">📋 Delegado</div>
-      <!-- Navegación semanas -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <button id="btnDelSemPrev" style="background:var(--gris);border:1px solid var(--borde);color:var(--texto);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:18px;">‹</button>
-        <span id="delSemLabel" style="font-size:14px;font-weight:600;color:var(--texto);"></span>
-        <button id="btnDelSemNext" style="background:var(--gris);border:1px solid var(--borde);color:var(--texto);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:18px;">›</button>
+      <div style="font-size:12px;color:#888;text-align:center;margin-bottom:8px;font-style:italic;">Toca el 📄 del día del partido para abrir su informe</div>
+      <div style="background:var(--gris);border:1px solid var(--borde);border-radius:14px;overflow:hidden;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--borde);">
+          <button id="btnCalDelAnt" style="background:none;border:1px solid var(--borde);color:var(--texto);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:18px;font-family:DM Sans,sans-serif;">‹</button>
+          <span id="calDelTitulo" style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--blanco);letter-spacing:1px;"></span>
+          <button id="btnCalDelSig" style="background:none;border:1px solid var(--borde);color:var(--texto);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:18px;font-family:DM Sans,sans-serif;">›</button>
+        </div>
+        <div class="cal-coach-grid" id="calDelCab"></div>
+        <div class="cal-coach-grid" id="calDelDias"></div>
       </div>
-      <div id="listaDelegado"><div class="cargando">Cargando...</div></div>
+      <div id="calDelLeyenda" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:11px;color:#888;margin-bottom:16px;">
+        <span>📄 Sin informe</span><span>🟢 Informe completo</span><span>🟡 Incidencias leves</span><span>🔴 Incidencias graves</span>
+      </div>
 
       <!-- Modal informe delegado -->
       <div id="modalInformeDelegado" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;overflow-y:auto;padding:16px;">
@@ -2098,9 +2104,9 @@ function iniciarAppDelegado() {
   if (secDel) secDel.classList.add("activo");
 
   // Cargar los partidos de su equipo (la función ya existe y filtra por coachData.grupo)
-  if (typeof cargarDelegado === "function") {
-    _delSemOffset = 0;
-    cargarDelegado();
+  if (typeof cargarCalDelegado === "function") {
+    calDelMes = new Date().getMonth(); calDelAnio = new Date().getFullYear();
+    cargarCalDelegado();
   }
 }
 
@@ -6051,169 +6057,91 @@ async function borrarEventoModalDia(id) {
 // ════════════════════════════════════════
 // MÓDULO DELEGADO
 // ════════════════════════════════════════
-var _delSemOffset = 0; // 0 = semana actual, -1 = semana anterior...
 var _delPartidoActual = null; // partido abierto en modal
 var _delSemaforo = null;
 
-function _delLunes(offset) {
-  var hoy = new Date();
-  var dia = hoy.getDay(); // 0=dom, 1=lun...
-  var lunes = new Date(hoy);
-  lunes.setDate(hoy.getDate() - (dia === 0 ? 6 : dia - 1) + offset * 7);
-  lunes.setHours(0,0,0,0);
-  return lunes;
-}
-function _delFmt(d) {
-  return d.getFullYear()+"-"+(d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0");
-}
-function _delFmtLeg(d) {
-  return (d.getDate()+"").padStart(2,"0")+"/"+(d.getMonth()+1+"").padStart(2,"0");
-}
-function _delDiaNombre(isoDate) {
-  var dias=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-  var p=isoDate.split("-"); var d=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
-  return dias[d.getDay()];
-}
-var ORDEN_CATEGORIA = ["Escuela","Prebenjamín","Benjamín","Alevín","Infantil","Cadete","Juvenil"];
-function _delCatOrd(cat) {
-  var i = ORDEN_CATEGORIA.findIndex(function(c){ return cat && cat.toLowerCase().includes(c.toLowerCase()); });
-  return i === -1 ? 99 : i;
-}
+var calDelMes = new Date().getMonth();
+var calDelAnio = new Date().getFullYear();
+var _partidosDelegadoTodos = [];
+var _informesDelegadoCache = {};
 
-async function cargarDelegado() {
-  var lunes = _delLunes(_delSemOffset);
-  var domingo = new Date(lunes); domingo.setDate(lunes.getDate()+6);
-  var fLunes = _delFmt(lunes), fDomingo = _delFmt(domingo);
-  document.getElementById("delSemLabel").textContent =
-    _delFmtLeg(lunes)+" – "+_delFmtLeg(domingo)+" "+domingo.getFullYear();
-
-  document.getElementById("btnDelSemNext").style.opacity = _delSemOffset >= 0 ? ".3" : "1";
-  document.getElementById("btnDelSemNext").disabled = _delSemOffset >= 0;
-
-  var el = document.getElementById("listaDelegado");
-  el.innerHTML = '<div class="cargando">Cargando partidos...</div>';
-
+async function cargarCalDelegado() {
   try {
     var partidos = [];
-
     // 1) Partidos de la colección "partidos" (creados desde pestaña Partidos, con stats)
-    var snapP = await getDocs(query(
-      collection(db,"partidos"),
-      where("equipo","==",coachData.grupo)
-    ));
-    snapP.forEach(function(d){
-      var p = Object.assign({id:d.id, _origen:"partidos"}, d.data());
-      partidos.push(p);
-    });
-
+    var snapP = await getDocs(query(collection(db,"partidos"), where("equipo","==",coachData.grupo)));
+    snapP.forEach(function(d){ partidos.push(Object.assign({id:d.id, _origen:"partidos"}, d.data())); });
     // 2) Partidos de la colección "eventos" (creados desde el calendario)
-    var snapE = await getDocs(query(
-      collection(db,"eventos"),
-      where("equipo","==",coachData.grupo)
-    ));
+    var snapE = await getDocs(query(collection(db,"eventos"), where("equipo","==",coachData.grupo)));
     snapE.forEach(function(d){
       var e = d.data();
-      if(e.tipo!=="partido" && e.tipo!=="amistoso") return;
-      // Extraer rival del título si es posible (ej: "vs Stadium" o "Partido X")
+      if (e.tipo!=="partido" && e.tipo!=="amistoso") return;
       var rival = "";
-      if(e.titulo){
+      if (e.titulo) {
         var t = e.titulo.replace(/^(Partido|Amistoso)\s+/i,"").trim();
         var mvs = t.match(/vs\.?\s+(.+)/i);
         rival = mvs ? mvs[1].trim() : t;
       }
-      partidos.push({
-        id: d.id,
-        _origen: "eventos",
-        tipo: e.tipo,
-        fecha: e.fecha,
-        hora: e.hora || "",
-        equipo: e.equipo,
-        rival: rival,
-        localia: "",
-        lugar: e.lugar || ""
-      });
+      partidos.push({ id:d.id, _origen:"eventos", tipo:e.tipo, fecha:e.fecha, hora:e.hora||"", equipo:e.equipo, rival:rival, localia:"", lugar:e.lugar||"" });
     });
+    // Evitar duplicados: si un mismo partido existe en ambas colecciones (misma fecha+equipo), prioriza "partidos" (tiene stats)
+    var vistos = {}; var partidosUnicos = [];
+    partidos.filter(function(p){ return p._origen==="partidos"; }).forEach(function(p){ vistos[p.fecha+"_"+p.equipo]=true; partidosUnicos.push(p); });
+    partidos.filter(function(p){ return p._origen==="eventos"; }).forEach(function(p){ var k=p.fecha+"_"+p.equipo; if(!vistos[k]){ vistos[k]=true; partidosUnicos.push(p); } });
+    _partidosDelegadoTodos = partidosUnicos;
 
-    // Evitar duplicados: si un mismo partido existe en ambas colecciones
-    // (misma fecha + equipo), priorizar el de "partidos" (tiene stats)
-    var vistos = {};
-    var partidosUnicos = [];
-    // Primero los de "partidos"
-    partidos.filter(function(p){return p._origen==="partidos";}).forEach(function(p){
-      var k = p.fecha+"_"+p.equipo;
-      vistos[k] = true;
-      partidosUnicos.push(p);
-    });
-    // Luego los de "eventos" solo si no hay ya uno ese día para ese equipo
-    partidos.filter(function(p){return p._origen==="eventos";}).forEach(function(p){
-      var k = p.fecha+"_"+p.equipo;
-      if(!vistos[k]){ vistos[k]=true; partidosUnicos.push(p); }
-    });
-    partidos = partidosUnicos;
-
-    // Filtrar por semana
-    partidos = partidos.filter(function(p){
-      if(!p.fecha) return false;
-      return p.fecha >= fLunes && p.fecha <= fDomingo;
-    });
-    partidos.sort(function(a,b){
-      if(a.fecha!==b.fecha) return a.fecha.localeCompare(b.fecha);
-      return _delCatOrd(a.equipo)-_delCatOrd(b.equipo);
-    });
-
-    if(!partidos.length){
-      el.innerHTML='<div class="vacio">No hay partidos esta semana.</div>';
-      return;
+    // Informes: solo de los partidos del mes que se va a mostrar, para no leer de más
+    _informesDelegadoCache = {};
+    var inicioMes = calDelAnio+"-"+String(calDelMes+1).padStart(2,"0")+"-01";
+    var ultimoDiaMes = new Date(calDelAnio, calDelMes+1, 0);
+    var finMes = calDelAnio+"-"+String(calDelMes+1).padStart(2,"0")+"-"+String(ultimoDiaMes.getDate()).padStart(2,"0");
+    var partidosDelMes = _partidosDelegadoTodos.filter(function(p){ return p.fecha>=inicioMes && p.fecha<=finMes; });
+    for (var i=0; i<partidosDelMes.length; i++) {
+      try { var snapI = await getDoc(doc(db,"informes_delegado",partidosDelMes[i].id)); if (snapI.exists()) _informesDelegadoCache[partidosDelMes[i].id] = snapI.data(); }
+      catch(eI){ console.warn("[Delegado] error leyendo informe", partidosDelMes[i].id, eI); }
     }
+  } catch(e) { console.error("cargarCalDelegado:", e); }
+  renderCalDelegado();
+}
 
-    // Cargar informes individualmente (pocos partidos por semana)
-    var informes = {};
-    for(var pi=0; pi<partidos.length; pi++){
-      try {
-        var snapI = await getDoc(doc(db,"informes_delegado",partidos[pi].id));
-        console.log("[Delegado] Buscando informe para id="+partidos[pi].id+" ("+partidos[pi]._origen+") -> existe:"+snapI.exists());
-        if(snapI.exists()) informes[partidos[pi].id] = snapI.data();
-      } catch(eI){ console.warn("[Delegado] error leyendo informe",partidos[pi].id,eI); }
-    }
-
-    el.innerHTML="";
-    var diaActual="";
-    partidos.forEach(function(p){
-      if(p.fecha!==diaActual){
-        diaActual=p.fecha;
-        var diaHdr=document.createElement("div");
-        diaHdr.style.cssText="font-size:12px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;";
-        diaHdr.textContent=_delDiaNombre(p.fecha)+" "+_delFmtLeg(new Date(p.fecha.replace(/-/g,"/")));
-        el.appendChild(diaHdr);
-      }
-      var inf=informes[p.id];
-      var semBadge=inf?({verde:"🟢",amarillo:"🟡",rojo:"🔴"}[inf.semaforo]||"⬜"):"";
-      var card=document.createElement("div");
-      card.className="del-partido-card";
-      var loc=p.localia==="fuera"?"✈️ Fuera":"🏟️ Casa";
-      var res=(typeof p.goles_propio==="number"&&typeof p.goles_rival==="number")?" · "+p.goles_propio+"-"+p.goles_rival:"";
-      var btnLabel=inf?"✏️ Editar":"📝 Rellenar";
-      card.innerHTML=
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
-          '<div style="flex:1;">' +
-            '<div class="del-partido-info">'+(inf?'<span class="del-sem-badge">'+semBadge+'</span>':'')+'vs '+(p.rival||"Rival")+'</div>'+
-            '<div class="del-partido-meta">'+loc+(p.hora?" · "+p.hora:"")+res+' · '+(p.tipo==="amistoso"?"🤝 Amistoso":"🏆 Oficial")+'</div>'+
-            (inf?'':'<span class="del-sin-informe">Sin informe aún</span>')+
-          '</div>'+
-          '<button class="del-btn-abrir" style="background:var(--azul-c);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap;margin-left:10px;">'+btnLabel+'</button>'+
-        '</div>';
-      // Usar closure correcto con IIFE para evitar problema de var en forEach
-      (function(partido, informe){
-        card.querySelector(".del-btn-abrir").addEventListener("click",function(){
-          abrirInformeDelegado(partido, informe||null);
-        });
-      })(p, inf);
-      el.appendChild(card);
-    });
-  } catch(e){
-    console.error("cargarDelegado error:",e);
-    el.innerHTML='<div class="vacio">Error cargando partidos: '+e.message+'</div>';
+function renderCalDelegado() {
+  var titulo = document.getElementById("calDelTitulo");
+  var cabEl = document.getElementById("calDelCab");
+  var diasEl = document.getElementById("calDelDias");
+  if (!titulo) return;
+  titulo.textContent = MESES_L[calDelMes] + " " + calDelAnio;
+  if (cabEl.children.length === 0) {
+    ["L","M","X","J","V","S","D"].forEach(function(d) { var el=document.createElement("div"); el.className="coach-cal-cab"; el.textContent=d; cabEl.appendChild(el); });
   }
+  diasEl.innerHTML = "";
+  var primerDia = new Date(calDelAnio, calDelMes, 1);
+  var ultimoDia = new Date(calDelAnio, calDelMes+1, 0);
+  var offset = primerDia.getDay()===0 ? 6 : primerDia.getDay()-1;
+  var _hoyD = new Date();
+  var hoyStr = _hoyD.getFullYear()+"-"+String(_hoyD.getMonth()+1).padStart(2,"0")+"-"+String(_hoyD.getDate()).padStart(2,"0");
+  var dAnt = new Date(calDelAnio, calDelMes, 0).getDate();
+  for (var i=offset-1; i>=0; i--) { var el=document.createElement("div"); el.className="coach-cal-dia otro-mes"; el.innerHTML='<div class="coach-cal-num">'+(dAnt-i)+'</div>'; diasEl.appendChild(el); }
+  for (var d=1; d<=ultimoDia.getDate(); d++) {
+    var fStr = calDelAnio+"-"+String(calDelMes+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    var esHoy = fStr===hoyStr;
+    var dEl = document.createElement("div"); dEl.className="coach-cal-dia"+(esHoy?" hoy":"");
+    var numEl = document.createElement("div"); numEl.className="coach-cal-num"; numEl.textContent=d; dEl.appendChild(numEl);
+    var partidoDia = _partidosDelegadoTodos.find(function(p){ return p.fecha===fStr; });
+    if (partidoDia) {
+      var inf = _informesDelegadoCache[partidoDia.id];
+      var icono = inf ? ({verde:"🟢",amarillo:"🟡",rojo:"🔴"}[inf.semaforo]||"📄") : "📄";
+      var folio = document.createElement("div");
+      folio.className = "coach-ev-dot";
+      folio.style.cursor = "pointer";
+      folio.textContent = icono + " vs " + (partidoDia.rival || "Rival");
+      folio.addEventListener("click", (function(p, informe) { return function(e) { e.stopPropagation(); abrirInformeDelegado(p, informe||null); }; })(partidoDia, inf));
+      dEl.appendChild(folio);
+    }
+    diasEl.appendChild(dEl);
+  }
+  var total = offset + ultimoDia.getDate();
+  var resto = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (var r=1; r<=resto; r++) { var elR=document.createElement("div"); elR.className="coach-cal-dia otro-mes"; elR.innerHTML='<div class="coach-cal-num">'+r+'</div>'; diasEl.appendChild(elR); }
 }
 
 function abrirInformeDelegado(partido, informe) {
@@ -6374,7 +6302,7 @@ document.getElementById("btnGuardarInfDel").addEventListener("click", async func
     console.log("[Delegado] Informe guardado OK en informes_delegado/"+_delPartidoActual.id, datos);
     btn.disabled = false; btn.textContent = "💾 Guardar informe";
     document.getElementById("modalInformeDelegado").style.display="none";
-    await cargarDelegado();
+    await cargarCalDelegado();
   }catch(e){
     console.error("[Delegado] ERROR guardando:",e);
     btn.disabled = false; btn.textContent = "💾 Guardar informe";
@@ -6382,17 +6310,18 @@ document.getElementById("btnGuardarInfDel").addEventListener("click", async func
   }
 });
 
-document.getElementById("btnDelSemPrev").addEventListener("click",function(){
-  _delSemOffset--; cargarDelegado();
+document.getElementById("btnCalDelAnt").addEventListener("click",function(){
+  calDelMes--; if(calDelMes<0){ calDelMes=11; calDelAnio--; }
+  cargarCalDelegado();
 });
-document.getElementById("btnDelSemNext").addEventListener("click",function(){
-  if(_delSemOffset>=0) return;
-  _delSemOffset++; cargarDelegado();
+document.getElementById("btnCalDelSig").addEventListener("click",function(){
+  calDelMes++; if(calDelMes>11){ calDelMes=0; calDelAnio++; }
+  cargarCalDelegado();
 });
 
 // Interceptar navegación a la pestaña delegado
 document.querySelectorAll('.tab[data-sec="delegado"]').forEach(function(t){
-  t.addEventListener("click",function(){ _delSemOffset=0; cargarDelegado(); });
+  t.addEventListener("click",function(){ calDelMes=new Date().getMonth(); calDelAnio=new Date().getFullYear(); cargarCalDelegado(); });
 });
 
 </script>
