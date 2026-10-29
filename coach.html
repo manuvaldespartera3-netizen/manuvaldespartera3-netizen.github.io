@@ -1388,6 +1388,10 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
 .coord-subtabs .bdg{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--rojo);color:#fff;font-size:10.5px;font-weight:800;margin-left:4px;}
 .asi-item.asi-falta .asi-fila{border-color:#e03c3c !important;box-shadow:0 0 0 2px rgba(224,60,60,.45);}
 .asi-item.asi-falta .asi-nombre:after{content:'  ⚠️ sin marcar';color:#ff8a8a;font-size:11px;font-weight:700;}
+.baja-medica{opacity:.75;}
+.baja-medica-nota{font-size:11px;font-weight:800;color:#ff8a8a;background:rgba(224,60,60,.12);border:1px solid rgba(224,60,60,.35);border-radius:8px;padding:5px 8px;margin:6px 0 2px;}
+.pcm-card .baja-medica-nota{margin:8px 10px 10px;}
+.asi-baja-med{font-size:11.5px;font-weight:700;color:#ff8a8a;background:rgba(224,60,60,.1);border:1px solid rgba(224,60,60,.35);border-radius:8px;padding:6px 10px;margin:-4px 0 8px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -2304,6 +2308,66 @@ function diasDesdeMed(fechaISO){
   try { var d0 = new Date(fechaISO+"T00:00:00"); var hoy = new Date(); hoy.setHours(0,0,0,0); return Math.max(0, Math.round((hoy - d0)/86400000)); } catch(e){ return 0; }
 }
 var medicoCache = {};
+// ── Parte médico → convocatorias y asistencia ──
+// Lesionado: no convocable y en la lista sale «🩹 Lesionado» desde la fecha de la lesión.
+// En recuperación: entrena normal, pero no convocable para partidos. Solo se desbloquea cambiando el estado en Médico.
+var _medCargadoEn = 0;
+async function asegurarMedico(forzar) {
+  if (!forzar && Date.now() - _medCargadoEn < 120000) return;
+  try {
+    var snap = await getDocs(collection(db, "medico"));
+    snap.forEach(function(d){ medicoCache[d.id] = Object.assign(medicoCache[d.id] || {}, d.data()); });
+    _medCargadoEn = Date.now();
+  } catch(e) { console.warn("asegurarMedico:", e); }
+}
+function fechaCortaMed(f) { return f ? String(f).split("-").reverse().slice(0, 2).join("/") : ""; }
+// ¿Está de baja para este partido? (lesionado o en recuperación, si el partido es desde la fecha de la baja)
+function bajaMedicaPartido(jid, fechaPartido) {
+  var m = medicoCache[jid];
+  if (!m || (m.estado !== "lesionado" && m.estado !== "recuperacion")) return null;
+  if (m.estadoDesde && fechaPartido && fechaPartido < m.estadoDesde) return null;
+  return { estado: m.estado, desde: m.estadoDesde || "" };
+}
+// ¿Está lesionado ese día de entrenamiento? (la recuperación sí entrena)
+function lesionadoEnFecha(jid, fecha) {
+  var m = medicoCache[jid];
+  if (!m || m.estado !== "lesionado") return null;
+  if (m.estadoDesde && fecha && fecha < m.estadoDesde) return null;
+  return { desde: m.estadoDesde || "" };
+}
+async function quitarDeConvocatoriasPorBaja(j, desde) {
+  if (!j || !j.grupo) return 0;
+  var hoy = new Date().toISOString().slice(0,10), lim = desde > hoy ? desde : hoy, n = 0;
+  var snap = await getDocs(query(collection(db, "partidos"), where("equipo", "==", j.grupo)));
+  for (var i = 0; i < snap.docs.length; i++) {
+    var dref = snap.docs[i], p = dref.data();
+    if (!p.fecha || p.fecha < lim) continue;
+    var jd = p.jugadas && p.jugadas[j.id];
+    if (!jd || !jd.convocado || jd.minutos > 0) continue;
+    var fresco = await getDoc(doc(db, "partidos", dref.id)), jug = Object.assign({}, (fresco.exists() && fresco.data().jugadas) || {});
+    if (!jug[j.id] || !jug[j.id].convocado || jug[j.id].minutos > 0) continue;
+    jug[j.id] = Object.assign({}, jug[j.id], { convocado: false, titular: false, capitan: false, minutos: 0, estado: "lesionado" });
+    await updateDoc(doc(db, "partidos", dref.id), { jugadas: jug });
+    var loc = (partidosEquipo || []).filter(function(x){ return x.id === dref.id; })[0]; if (loc) loc.jugadas = jug;
+    n++;
+  }
+  if (n) toast("🩹 Quitado de " + n + " convocatoria" + (n > 1 ? "s" : "") + " por la baja médica");
+  return n;
+}
+function aplicarBajaMedica(d, j) {
+  var b = bajaMedicaPartido(j.id, partidoActual && partidoActual.fecha);
+  if (!b || (d.convocado && d.minutos > 0)) return null;   // si ya jugó minutos en ese partido, no se toca el historial
+  d.convocado = false; d.titular = false; d.capitan = false; d.minutos = 0; d.estado = "lesionado";
+  return b;
+}
+function bloquearPorBaja(el, b, esFila) {
+  el.classList.add("baja-medica");
+  el.querySelectorAll("button, input, select").forEach(function(x){ x.disabled = true; });
+  var txt = "🩹 Baja médica" + (b.estado === "recuperacion" ? " (en recuperación)" : "") + (b.desde ? " desde el " + fechaCortaMed(b.desde) : "") + " · no convocable";
+  var nota = document.createElement("div"); nota.className = "baja-medica-nota"; nota.textContent = txt;
+  if (esFila) { var t = el.querySelector(".pc-jug-txt"); if (t) t.appendChild(nota); }
+  else el.appendChild(nota);
+}
 function mostrarListaMedico(){
   document.getElementById("medicoLista").style.display = "block";
   document.getElementById("medicoFicha").style.display = "none";
@@ -2454,6 +2518,10 @@ async function abrirFichaMedica(j){
         if (datos.estadoDesde) medicoCache[j.id].estadoDesde = datos.estadoDesde;
         cont.querySelectorAll(".med-est-btn").forEach(function(b){ b.className = "med-est-btn"; });
         btn.className = "med-est-btn sel-"+nuevo;
+        // ── Baja médica: se quita de las convocatorias de los próximos partidos (sin minutos jugados) ──
+        if ((nuevo === "lesionado" || nuevo === "recuperacion") && nuevo !== anterior) {
+          try { await quitarDeConvocatoriasPorBaja(j, medicoCache[j.id].estadoDesde || new Date().toISOString().slice(0,10)); } catch(eBj) { console.warn(eBj); }
+        }
         // ── Si lo cambia el ÁREA MÉDICA y hay cambio real, generar aviso al entrenador ──
         if (coachData.rol === "medico" && nuevo !== anterior) {
           await crearAvisoMedico(j, nuevo, anterior);
@@ -3691,9 +3759,11 @@ async function renderAlumnos() {
 }
 
 // ── ASISTENCIA ──
+var asistenciaBajaMed = {};
 async function cargarListaAsi() {
   var fecha = document.getElementById("asiFecha").value;
   if (!fecha) return;
+  await asegurarMedico();
   if (!jugadores.length) {
     document.getElementById("listaAsi").innerHTML = '<div class="aviso-amarillo">⚠️ No tienes jugadores asignados a tu equipo.<span>Pide al admin que asigne los jugadores del equipo <b>' + (coachData.grupo || "?") + '</b> desde el panel de Administración.</span></div>';
     document.getElementById("wrapGuardar").style.display = "none";
@@ -3733,6 +3803,12 @@ async function cargarListaAsi() {
       }
     });
   } catch(e) { console.error("avisos familia:", e); }
+  // Parte médico: lesionado ese día → ausente por lesión, bloqueado (se guarda igual que siempre: falta justificada)
+  asistenciaBajaMed = {};
+  jugadores.forEach(function(jx) {
+    var lb = lesionadoEnFecha(jx.id, fecha);
+    if (lb) { asistenciaBajaMed[jx.id] = lb; asistenciaEstado[jx.id] = false; asistenciaMotivo[jx.id] = "lesion"; delete asistenciaDesmarcados[jx.id]; }
+  });
   var contadores = await Promise.all(jugadores.map(function(jx) { return getContador(jx.id); }));
   // Botones para marcar a todos de golpe (luego se quita solo a quien no ha venido)
   var html = '<div class="asi-masiva"><button type="button" id="btnAsiTodosPresentes" class="asi-todos">✓ Todos presentes</button>' +
@@ -3747,10 +3823,12 @@ async function cargarListaAsi() {
     if (avFam) html += '<div class="asi-aviso-fam">📩 La familia avisó ausencia: ' + motivoLabelCoach(avFam) + '</div>';
     html += '<div class="asi-fila"><div class="asi-info"><div class="asi-nombre">' + j.nombre + " " + j.apellidos + '</div><div class="asi-equipo">' + j.grupo + '</div></div>';
     html += '<div class="asi-contador" style="margin-right:6px">' + c.presentes + "/" + c.total + '</div>';
-    html += '<div class="toggles"><button class="tbtn tbtn-p' + (p === true ? " marcado" : "") + '" data-id="' + j.id + '" data-v="1">✓</button>';
-    html += '<button class="tbtn tbtn-a' + (p === false ? " marcado" : "") + '" data-id="' + j.id + '" data-v="0">✗</button></div></div>';
+    var bmA = asistenciaBajaMed[j.id], dis = bmA ? " disabled" : "";
+    html += '<div class="toggles"><button class="tbtn tbtn-p' + (p === true ? " marcado" : "") + '" data-id="' + j.id + '" data-v="1"' + dis + '>✓</button>';
+    html += '<button class="tbtn tbtn-a' + (p === false ? " marcado" : "") + '" data-id="' + j.id + '" data-v="0"' + dis + '>✗</button></div></div>';
+    if (bmA) html += '<div class="asi-baja-med">🩹 Lesionado según el parte médico' + (bmA.desde ? ' desde el ' + fechaCortaMed(bmA.desde) : '') + ' · cuenta como falta justificada</div>';
     html += '<div class="asi-motivo-wrap" data-for="' + j.id + '" style="display:' + (p === false ? "block" : "none") + '">';
-    html += '<select class="asi-motivo" data-id="' + j.id + '">';
+    html += '<select class="asi-motivo" data-id="' + j.id + '"' + dis + '>';
     html += '<option value="">— Motivo de la ausencia —</option>';
     var MOT = [["lesion","🩹 Lesión"],["enfermedad","🤒 Enfermedad"],["personal","📋 Causas personales"],["seleccion","🌍 Convocatoria selección"],["otros","✏️ Otros"]];
     for (var mi=0; mi<MOT.length; mi++) html += '<option value="' + MOT[mi][0] + '"' + (mot===MOT[mi][0]?" selected":"") + '>' + MOT[mi][1] + '</option>';
@@ -3833,7 +3911,7 @@ function marcarTodosPresentes() {
         (ausentes ? " · " + ausentes + (ausentes === 1 ? " sigue ausente" : " siguen ausentes") : "") + ". Quita a quien no haya venido y guarda.", "ok");
 }
 function borrarMarcasAsi() {
-  var marcados = jugadores.filter(function(j) { return asistenciaEstado[j.id] !== undefined; });
+  var marcados = jugadores.filter(function(j) { return asistenciaEstado[j.id] !== undefined && !asistenciaBajaMed[j.id]; });
   if (!marcados.length) return;
   if (!confirm("¿Borrar las marcas de los " + marcados.length + " jugadores de este día? Al guardar, se borrará también lo que estuviera guardado.")) return;
   marcados.forEach(function(j) {
@@ -6606,6 +6684,7 @@ document.getElementById("btnGuardarPartidoForm").addEventListener("click", async
 
 // ── DETALLE PARTIDO ──
 function abrirDetallePartido(p) {
+  asegurarMedico().then(function(){ if (partidoActualId === p.id) { try { renderListaJugadoresPartido(); actualizarContadores(); } catch(e) {} } });
   partidoActual = p;
   partidoActualId = p.id;
   // Cargar datos locales (clonar el objeto jugadas)
@@ -7047,6 +7126,7 @@ function renderTarjetasPartido() {
 
 function buildTarjetaJugador(j, nConv, nTit, maxMin) {
   var d = ensureJugada(j.id, j.nombre + " " + (j.apellidos || ""));
+  var _baja = aplicarBajaMedica(d, j);
   if (d.convocado && d.estado !== "convocado") d.estado = "convocado";
   var esPortero = j.posicion === "portero";
   var maxTit = getInfoPartidoActual().jugadores_en_campo;
@@ -7197,6 +7277,7 @@ function buildTarjetaJugador(j, nConv, nTit, maxMin) {
     });
   });
 
+  if (_baja) bloquearPorBaja(card, _baja, false);
   return card;
 }
 
@@ -7277,6 +7358,7 @@ function reducirFotoParaSubir(file) {
 
 function buildFilaConvocatoria(j, nConv, nTit, maxMin) {
   var d = ensureJugada(j.id, j.nombre + " " + (j.apellidos||""));
+  var _baja = aplicarBajaMedica(d, j);
   if (d.convocado && d.estado !== "convocado") d.estado = "convocado";
   var esPortero = j.posicion === "portero";
   var convBloqueado = !d.convocado && nConv >= maxConvocados();
@@ -7395,6 +7477,7 @@ function buildFilaConvocatoria(j, nConv, nTit, maxMin) {
     pcRefrescarTarjeta(btnRo, "roja", d.rojas);
   });
 
+  if (_baja) bloquearPorBaja(tr, _baja, true);
   return tr;
 }
 
