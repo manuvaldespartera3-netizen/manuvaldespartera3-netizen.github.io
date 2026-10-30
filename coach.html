@@ -2425,6 +2425,11 @@ async function abrirFichaMedica(j){
     html += '<div class="med-est-dias">📅 '+(est==="lesionado"?"Lesionado":"En recuperación")+' desde el '+m.estadoDesde.split("-").reverse().join("/")+' · <b>'+dd+' día'+(dd===1?"":"s")+'</b></div>';
   }
   html += '</div>';
+  var _saludOk = privSaludOk(j.id);
+  if (!_saludOk) {
+    html += '<div class="med-bloque" style="border-color:rgba(240,180,41,.45);background:rgba(240,180,41,.07);"><div class="med-bloque-tit">🔒 Sin permiso de datos de salud</div>' +
+            '<div style="font-size:12.5px;color:#ccc;line-height:1.5;">La familia no ha dado permiso (o aún no ha respondido). Solo se puede marcar si está <b>disponible, lesionado o en recuperación</b>. Observaciones, bienestar, informes y visitas quedan ocultos. Si hace falta, habla con coordinación.</div></div>';
+  } else {
   // Observaciones (listables)
   html += '<div class="med-bloque"><div class="med-bloque-tit">📌 Observaciones a tener en cuenta</div>' +
           '<div id="medObsLista"></div>' +
@@ -2499,6 +2504,7 @@ async function abrirFichaMedica(j){
           '<input id="medVisNota" type="text" placeholder="Nota breve (opcional)..." class="med-input" style="width:100%;margin-bottom:8px;box-sizing:border-box;"/>' +
           '<button id="medVisAdd" class="med-add-btn" style="width:100%;">+ Registrar visita</button>' +
           '</div>';
+  }
   cont.innerHTML = html;
   cont.querySelectorAll(".med-est-btn").forEach(function(btn){
     btn.addEventListener("click", async function(){
@@ -2530,6 +2536,7 @@ async function abrirFichaMedica(j){
       } catch(e){ toast("Error: "+e.message); }
     });
   });
+  if (!_saludOk) return;
   renderMedObs(j);
   var addBtn = document.getElementById("medObsAdd");
   if (addBtn) addBtn.addEventListener("click", function(){ agregarMedObs(j); });
@@ -3671,6 +3678,23 @@ function normalizarFechaNac(val) {
   return "";
 }
 
+
+// ── PRIVACIDAD: permisos de la familia (consentimientos/{alumnoId}). Sin «sí» = No ──
+//  · fotos  ≠ sí → no se muestra ni se sube su foto
+//  · salud  ≠ sí → en Médico solo el estado (disponible / lesionado / recuperación)
+var privConsCoach = {};
+async function privCargarConsCoach() {
+  try {
+    var sc = await getDocs(collection(db, "consentimientos"));
+    privConsCoach = {}; sc.forEach(function(d){ privConsCoach[d.id] = d.data(); });
+  } catch(e) { console.warn("consentimientos:", e); }
+  jugadores.forEach(function(j){
+    if (j._fotoOrig === undefined) j._fotoOrig = j.photoUrl || "";
+    j.photoUrl = privFotosOk(j.id) ? j._fotoOrig : "";
+  });
+}
+function privFotosOk(id) { var c = privConsCoach[id]; return !!(c && c.fotos === true); }
+function privSaludOk(id) { var c = privConsCoach[id]; return !!(c && c.salud === true); }
 async function cargarJugadores() {
   try {
     var q = coachData.grupo && coachData.grupo !== "Todos"
@@ -3685,6 +3709,7 @@ async function cargarJugadores() {
       jugadores.push(dat);
     });
     jugadores.sort(function(a, b) { return a.nombre.localeCompare(b.nombre); });
+    await privCargarConsCoach();
     var _st2 = document.getElementById("statTotal"); if (_st2) _st2.textContent = jugadores.length;
     document.getElementById("notaJugador").innerHTML = '<option value="">Seleccionar...</option>' +
       jugadores.map(function(j) { return '<option value="' + j.id + '">' + j.nombre + " " + j.apellidos + '</option>'; }).join("");
@@ -4312,6 +4337,17 @@ async function verFichaCoach(id) {
       fichaInfoCumple.textContent = "";
     }
   }
+  (function(){
+    var fe = document.getElementById("fichaCoachEquipo"), av = document.getElementById("fichaCoachPriv");
+    if (!av && fe) { av = document.createElement("div"); av.id = "fichaCoachPriv"; av.style.cssText = "font-size:11.5px;margin-top:6px;line-height:1.4;"; fe.parentNode.insertBefore(av, fe.nextSibling); }
+    if (!av) return;
+    var c = privConsCoach[j.id], f = [];
+    if (!c) f.push("la familia aún no ha respondido a los permisos");
+    else { if (c.fotos !== true) f.push("sin fotos"); if (c.salud !== true) f.push("sin datos de salud"); }
+    av.style.color = "#f0b429";
+    av.textContent = f.length ? "🔒 Privacidad: " + f.join(" · ") : "";
+    av.style.display = f.length ? "" : "none";
+  })();
   if (j.photoUrl) {
     document.getElementById("fichaCoachFoto").src = j.photoUrl;
     document.getElementById("fichaCoachFoto").style.display = "block";
@@ -8714,6 +8750,7 @@ async function exportarTodasFichas() {
       var archivo = _fotoPendienteCoach || inpFoto.files[0];
       _fotoPendienteCoach = null;
       if (!archivo || !fichaCoachActual) return;
+      if (!privFotosOk(fichaCoachActual)) { toast("🔒 La familia no ha dado permiso para fotos"); inpFoto.value = ""; return; }
       var ot = btnCam.textContent; btnCam.textContent = "⏳"; btnCam.disabled = true;
       try {
         var archivoReducido = await reducirFotoParaSubir(archivo);
@@ -8724,7 +8761,7 @@ async function exportarTodasFichas() {
         if (!url) throw new Error("No se pudo subir la imagen");
         await updateDoc(doc(db, "alumnos", fichaCoachActual), { photoUrl: url });
         var jug = jugadores.find(function(x){ return x.id === fichaCoachActual; });
-        if (jug) jug.photoUrl = url;
+        if (jug) { jug.photoUrl = url; jug._fotoOrig = url; }
         var fImg = document.getElementById("fichaCoachFoto"), fEmo = document.getElementById("fichaCoachEmoji");
         if (fImg && fEmo) { fImg.src = url; fImg.style.display = "block"; fEmo.style.display = "none"; }
         toast("✅ Foto actualizada", "ok");

@@ -1313,6 +1313,46 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
 .coordc-fila .coord-estado{flex-shrink:0;}
 .coordc-det{margin:-2px 0 10px;}
 .coord-btn-borrar{background:rgba(224,60,60,.12);border:1px solid rgba(224,60,60,.45);color:#ff8a8a;border-radius:9px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;margin-top:8px;}
+
+/* ═══ PRIVACIDAD (admin) ═══ */
+.pva-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+@media(max-width:520px){.pva-kpis{grid-template-columns:repeat(2,1fr);}}
+.pva-kpis .k{background:#141414;border:1px solid #2a2a2a;border-radius:12px;padding:10px 6px;text-align:center;}
+.pva-kpis .k b{display:block;font-size:22px;color:#4fd583;} .pva-kpis .k span{font-size:10px;color:#888;font-weight:700;text-transform:uppercase;line-height:1.3;display:block;}
+.pva-kpis .k.r b{color:#ff8a8a;} .pva-kpis .k.y b{color:#f0b429;}
+.pva-que{background:rgba(74,144,217,.07);border:1px solid rgba(74,144,217,.3);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#bbb;line-height:1.5;}
+.pva-que b{color:#fff;} .pva-que > b{display:block;margin-bottom:4px;} .pva-que span{display:block;margin-top:3px;}
+.pva-chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px;scrollbar-width:none;}
+.pva-chips button{flex-shrink:0;padding:7px 11px;border-radius:20px;border:1px solid #2a2a2a;background:#141414;color:#999;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer;}
+.pva-chips button i{font-style:normal;opacity:.7;margin-left:3px;}
+.pva-chips button.on{border-color:#4a90d9;color:#4a90d9;background:rgba(74,144,217,.12);}
+.pva-filtros{display:flex;gap:6px;margin-bottom:10px;}
+.pva-filtros select,.pva-filtros input{flex:1;min-width:0;background:#1c1c1c;border:1px solid #2a2a2a;color:#f5f5f0;border-radius:10px;padding:9px;font-size:14px;font-family:inherit;}
+.pva-filtros button{background:#1c1c1c;border:1px solid #2a2a2a;color:#ddd;border-radius:10px;padding:0 12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.pva-it{background:#141414;border:1px solid #2a2a2a;border-left:4px solid #25a352;border-radius:12px;margin-bottom:7px;overflow:hidden;}
+.pva-it.r{border-left-color:#e03c3c;} .pva-it.y{border-left-color:#f0b429;}
+.pva-cab{display:flex;gap:8px;align-items:center;padding:10px 12px;cursor:pointer;}
+.pva-cab .tx{flex:1;min-width:0;} .pva-cab .tx b{display:block;color:#f5f5f0;font-size:13.5px;} .pva-cab .tx span{display:block;font-size:11.5px;color:#888;line-height:1.4;} .pva-cab .tx em{font-style:normal;color:#ff8a8a;}
+.pva-cab .pls{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;max-width:52%;}
+.pva-cab .pl{font-size:10.5px;font-weight:800;border-radius:20px;padding:3px 7px;white-space:nowrap;}
+.pl.si{background:rgba(37,163,82,.15);color:#4fd583;} .pl.no{background:rgba(224,60,60,.15);color:#ff8a8a;} .pl.nr{background:#222;color:#888;}
+.pva-det{padding:0 12px 12px;border-top:1px solid #222;}
+.pva-pr{padding:8px 0;border-bottom:1px dashed #222;font-size:12px;} .pva-pr b{display:block;color:#fff;font-size:12.5px;} .pva-pr span{display:block;color:#999;line-height:1.45;}
+.pva-pr span.v{color:#4fd583;} .pva-pr span.y{color:#f0b429;} .pva-pr span.g{color:#666;}
+.pva-sec{display:block;width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px dashed rgba(182,124,255,.6);background:rgba(182,124,255,.08);color:#d2b0ff;font-weight:800;font-size:13px;font-family:inherit;cursor:pointer;}
+.pva-papel{margin-top:10px;background:#101010;border:1px solid #2a2a2a;border-radius:10px;padding:10px;}
+.pva-sn{display:grid;grid-template-columns:1fr 70px 70px;gap:6px;align-items:center;margin-bottom:6px;font-size:13px;color:#ddd;}
+.pva-sn button,.pva-2 button{padding:9px;border-radius:9px;border:1px solid #2a2a2a;background:#141414;color:#aaa;font-weight:800;font-family:inherit;cursor:pointer;}
+.pva-sn button.si.on{background:rgba(37,163,82,.18);border-color:#25a352;color:#6fd897;} .pva-sn button.no.on{background:rgba(224,60,60,.15);border-color:#e03c3c;color:#ff8a8a;}
+.pva-2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;} .pva-2 .pva-sec,.pva-2 .pva-btn{margin-top:0;}
+.pva-nota{font-size:11px;color:#777;margin-top:6px;line-height:1.4;}
+.pva-cfg{margin-top:20px;background:#141414;border:1px solid #2a2a2a;border-radius:12px;padding:12px;}
+.pva-cfg-tit{font-size:13px;font-weight:800;color:#fff;margin-bottom:4px;}
+.pva-cfg label,.pva-papel label{display:block;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;margin:10px 0 5px;}
+.pva-cfg input,.pva-cfg textarea,.pva-papel input{width:100%;box-sizing:border-box;background:#1c1c1c;border:1px solid #2a2a2a;color:#f5f5f0;border-radius:10px;padding:9px;font-size:14px;font-family:inherit;}
+.pva-cfg textarea{min-height:90px;resize:vertical;line-height:1.45;}
+.pva-cfg label.pva-ck{display:flex;gap:8px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:12.5px;color:#ccc;font-weight:500;line-height:1.4;} .pva-ck input{width:auto;margin-top:2px;} .pva-ck b{color:#fff;}
+.pva-btn{display:block;width:100%;padding:11px;border-radius:10px;border:none;background:#25a352;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px;}
 </style>
 </head>
 <body>
@@ -1352,6 +1392,7 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
     <div class="tab" data-sec="coordinacion">📨 Coordinación <span class="tab-badge" id="tabBadgeCoord" style="display:none"></span></div>
     <div class="tab" data-sec="reuniones">🤝 Reuniones</div>
     <div class="tab" data-sec="comfam">📮 Familias<span id="tabBdgCom" style="display:none;margin-left:5px;background:#e03c3c;color:#fff;border-radius:10px;padding:0 6px;font-size:10px;font-weight:800;"></span></div>
+    <div class="tab" data-sec="privacidad">🔒 Privacidad</div>
     <div class="tab" data-sec="finanzas">Finanzas</div>
     <div class="tab" data-sec="inventario">📦 Inventario</div>
     <div class="tab" data-sec="exportar">Exportar</div>
@@ -1934,6 +1975,13 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
       <div id="comAdmin" style="max-width:640px;"><div class="cargando">Cargando...</div></div>
     </div>
 
+    <!-- PRIVACIDAD: aceptación de la política y permisos de cada jugador -->
+    <div class="sec" id="sec-privacidad">
+      <div class="sec-titulo">🔒 Privacidad y permisos</div>
+      <div style="font-size:12px;color:#888;margin:-6px 0 14px;line-height:1.5;">Qué familias han aceptado la política y qué permisos ha dado cada una (fotos, salud, avisos). Sin respuesta cuenta como «No». Los consentimientos en papel se registran aquí.</div>
+      <div id="privAdmin" style="max-width:680px;"><div class="cargando">Cargando...</div></div>
+    </div>
+
     <!-- FINANZAS -->
     <div class="sec" id="sec-finanzas">
       <div class="sec-titulo">Finanzas</div>
@@ -2246,6 +2294,7 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
         <div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--w);" id="fichaNombreH"></div>
         <div style="font-size:13px;color:var(--ac);" id="fichaEquipoH"></div>
         <div style="font-size:12px;color:#666;margin-top:4px;" id="fichaEdadH"></div>
+        <div style="font-size:12px;margin-top:4px;" id="fichaPrivH"></div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
@@ -2493,10 +2542,209 @@ document.querySelectorAll(".tab").forEach(function(t) {
     if (t.dataset.sec === "coordinacion") { cargarSolicitudesCoordAdmin(); }
     if (t.dataset.sec === "reuniones") { reuEntrarAdmin(); }
     if (t.dataset.sec === "comfam") { comEntrarAdmin(); }
+    if (t.dataset.sec === "privacidad") { privAdCargar(); }
     if (t.dataset.sec === "entrenadores") { try{ if(typeof cargarEntrenadores==="function") cargarEntrenadores(); }catch(e){console.error(e);} }
     if (t.dataset.sec === "decalogo") { try{ cargarGaleriaBienvenida(); cargarImagenSlot("normativa"); cargarImagenSlot("conducta"); }catch(e){console.error(e);} }
   });
 });
+// ════════════════════════════════════════════════════════════════
+// 🔒 PRIVACIDAD (Admin): quién ha aceptado la política y los permisos de cada jugador.
+//  · usuarios/{uid}.terminos  → aceptación de cada padre/madre (versión y fecha)
+//  · consentimientos/{alumnoId} → fotos / salud / avisos (sí/no), quién, cuándo, origen app|papel
+//  · configuracion/privacidad → datos del club y texto de la política (versión)
+// Sin respuesta = No.
+// ════════════════════════════════════════════════════════════════
+var privAd = { cfg: null, cons: {}, acept: {}, filtro: "todos", equipo: "", busca: "", abierto: null, papel: null };
+function privAdEsc(s) { return String(s === undefined || s === null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function privAdFecha(iso) { if (!iso) return ""; var d = new Date(iso); if (isNaN(d)) return ""; return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+d.getFullYear(); }
+async function privAdCargar() {
+  var cont = document.getElementById("privAdmin"); if (!cont) return;
+  cont.innerHTML = '<div class="cargando">Cargando...</div>';
+  try {
+    if (!listaJugadores || !listaJugadores.length) { try { await cargarJugadores(); } catch(e0) {} }
+    var r = await Promise.all([ getDoc(doc(db, "configuracion", "privacidad")), getDocs(collection(db, "consentimientos")), getDocs(collection(db, "usuarios")) ]);
+    privAd.cfg = Object.assign({ version: 1, nombreClub: "", email: "", texto: "" }, r[0].exists() ? r[0].data() : {});
+    privAd.cfg.version = parseInt(privAd.cfg.version, 10) || 1;
+    privAd.cons = {}; r[1].forEach(function(d){ privAd.cons[d.id] = d.data(); });
+    privAd.acept = {}; r[2].forEach(function(d){ var u = d.data(), t = u.terminos; if (t && (t.email || u.email)) privAd.acept[String(t.email || u.email).toLowerCase()] = t; });
+    privAdPintar();
+  } catch(e) { cont.innerHTML = '<div class="vacio">No se pudo cargar: ' + privAdEsc(e.message || e) + '</div>'; }
+}
+// Estado de un progenitor: "ok" (aceptó la versión vigente), "vieja" (aceptó una anterior), "no" (no ha aceptado), "" (sin email)
+function privAdProg(email) {
+  email = String(email || "").trim().toLowerCase(); if (!email) return { est: "", t: null };
+  var t = privAd.acept[email]; if (!t) return { est: "no", t: null };
+  return { est: (parseInt(t.version, 10) || 0) >= privAd.cfg.version ? "ok" : "vieja", t: t };
+}
+function privAdFila(j) {
+  var c = privAd.cons[j.id] || null;
+  var resp = !!(c && typeof c.fotos === "boolean");
+  var pa = privAdProg(j.padreEmail), ma = privAdProg(j.madreEmail);
+  var acepto = pa.est === "ok" || ma.est === "ok";
+  return { j: j, c: c, resp: resp, fotos: !!(c && c.fotos === true), salud: !!(c && c.salud === true), avisos: !!(c && c.avisos === true), pa: pa, ma: ma, acepto: acepto };
+}
+function privAdPintar() {
+  var cont = document.getElementById("privAdmin"); if (!cont) return;
+  var act = (listaJugadores || []).filter(function(j){ return (j.estado || "activo") === "activo"; });
+  var filas = act.map(privAdFila);
+  var tot = filas.length || 1;
+  var nAcep = filas.filter(function(f){ return f.acepto; }).length;
+  var nSinR = filas.filter(function(f){ return !f.resp; }).length;
+  var nSinF = filas.filter(function(f){ return !f.fotos; }).length;
+  var nSinS = filas.filter(function(f){ return !f.salud; }).length;
+  var equipos = []; act.forEach(function(j){ if (j.grupo && equipos.indexOf(j.grupo) === -1) equipos.push(j.grupo); }); equipos.sort();
+  var F = privAd.filtro, ver = filas.filter(function(f){
+    if (privAd.equipo && f.j.grupo !== privAd.equipo) return false;
+    if (privAd.busca) { var t = ((f.j.nombre||"")+" "+(f.j.apellidos||"")).toLowerCase(); if (t.indexOf(privAd.busca) === -1) return false; }
+    if (F === "sinresp") return !f.resp;
+    if (F === "sinacep") return !f.acepto;
+    if (F === "fotos") return !f.fotos;
+    if (F === "salud") return !f.salud;
+    if (F === "avisos") return !f.avisos;
+    if (F === "ok") return f.acepto && f.fotos && f.salud && f.avisos;
+    return true;
+  });
+  // Primero los que requieren actuar
+  ver.sort(function(a, b){
+    var pa = (!a.resp ? 0 : (!a.fotos || !a.salud) ? 1 : 2), pb = (!b.resp ? 0 : (!b.fotos || !b.salud) ? 1 : 2);
+    if (pa !== pb) return pa - pb;
+    var g = (a.j.grupo||"").localeCompare(b.j.grupo||""); if (g) return g;
+    return (a.j.nombre||"").localeCompare(b.j.nombre||"");
+  });
+  var h = '';
+  h += '<div class="pva-kpis">' +
+    '<div class="k"><b>' + Math.round(nAcep * 100 / tot) + '%</b><span>familias han aceptado</span></div>' +
+    '<div class="k r"><b>' + nSinR + '</b><span>sin responder permisos</span></div>' +
+    '<div class="k y"><b>' + nSinF + '</b><span>📸 sin permiso de fotos</span></div>' +
+    '<div class="k y"><b>' + nSinS + '</b><span>🩺 sin permiso de salud</span></div></div>';
+  h += '<div class="pva-que"><b>Qué hacer con cada caso</b>' +
+    '<span>📸 <b>Sin fotos</b>: no sacarle en fotos ni redes del club; en la app no se ve su foto.</span>' +
+    '<span>🩺 <b>Sin salud</b>: el cuerpo técnico solo marca disponible / lesionado / recuperación. Lo demás, con la familia en persona.</span>' +
+    '<span>🔔 <b>Sin avisos</b>: no le llegan avisos al móvil; avisar de convocatorias por otra vía.</span>' +
+    '<span>⏳ <b>Sin responder</b>: cuenta como «No» en todo. Recordárselo a la familia o registrar el papel firmado.</span></div>';
+  var chips = [["todos","Todos",filas.length],["sinresp","⏳ Sin responder",nSinR],["sinacep","Sin aceptar política",filas.length - nAcep],["fotos","📸 Sin fotos",nSinF],["salud","🩺 Sin salud",nSinS],["avisos","🔔 Sin avisos",filas.filter(function(f){return !f.avisos;}).length],["ok","✅ Todo sí",filas.filter(function(f){return f.acepto&&f.fotos&&f.salud&&f.avisos;}).length]];
+  h += '<div class="pva-chips">' + chips.map(function(c){ return '<button type="button" data-pvf="' + c[0] + '" class="' + (F === c[0] ? 'on' : '') + '">' + c[1] + ' <i>' + c[2] + '</i></button>'; }).join("") + '</div>';
+  h += '<div class="pva-filtros"><select data-pveq><option value="">Todos los equipos</option>' + equipos.map(function(e){ return '<option' + (privAd.equipo === e ? ' selected' : '') + '>' + privAdEsc(e) + '</option>'; }).join("") + '</select>' +
+       '<input data-pvbusca type="search" placeholder="Buscar jugador…" value="' + privAdEsc(privAd.busca) + '"><button type="button" data-pvcsv>⬇️ Lista</button></div>';
+  if (!ver.length) h += '<div class="vacio">No hay jugadores con este filtro.</div>';
+  ver.forEach(function(f){
+    var j = f.j, ab = privAd.abierto === j.id;
+    var cls = !f.resp ? "r" : (!f.fotos || !f.salud || !f.avisos) ? "y" : "v";
+    function pill(ok, ico) { return '<span class="pl ' + (!f.resp ? 'nr' : ok ? 'si' : 'no') + '">' + ico + (f.resp ? (ok ? ' Sí' : ' No') : ' —') + '</span>'; }
+    h += '<div class="pva-it ' + cls + (ab ? ' ab' : '') + '"><div class="pva-cab" data-pvab="' + j.id + '">' +
+      '<div class="tx"><b>' + privAdEsc((j.nombre||"") + " " + (j.apellidos||"")) + '</b><span>' + privAdEsc(j.grupo || "") + ' · ' +
+        (f.acepto ? '✅ política aceptada' : '<em>política sin aceptar</em>') + (!f.resp ? ' · <em>permisos sin responder</em>' : (f.c.origen === "papel" ? ' · 📝 papel' : '')) + '</span></div>' +
+      '<div class="pls">' + pill(f.fotos, "📸") + pill(f.salud, "🩺") + pill(f.avisos, "🔔") + '</div></div>';
+    if (ab) h += privAdDetalle(f);
+    h += '</div>';
+  });
+  // Ajustes de la política
+  var c = privAd.cfg;
+  h += '<div class="pva-cfg"><div class="pva-cfg-tit">⚙️ Datos de la política (versión ' + c.version + ')</div>' +
+    '<label>Nombre del club (responsable)</label><input data-pvc="nombreClub" value="' + privAdEsc(c.nombreClub) + '" placeholder="Racing Club Zaragoza">' +
+    '<label>Email de privacidad del club</label><input data-pvc="email" type="email" value="' + privAdEsc(c.email) + '" placeholder="privacidad@club.es">' +
+    '<label>Texto completo de la política (opcional)</label><textarea data-pvc="texto" placeholder="Si lo dejas vacío, se usa el texto estándar de Córner App con los datos de arriba.">' + privAdEsc(c.texto) + '</textarea>' +
+    '<label class="pva-ck"><input type="checkbox" data-pvnueva><span>Es un cambio importante: pedir a <b>todas</b> las familias que acepten de nuevo (versión ' + (c.version + 1) + ')</span></label>' +
+    '<button type="button" class="pva-btn" data-pvguardarcfg>Guardar</button></div>';
+  cont.innerHTML = h;
+}
+function privAdDetalle(f) {
+  var j = f.j, c = f.c || {};
+  function prog(lbl, nom, email, p) {
+    if (!email) return '<div class="pva-pr"><b>' + lbl + '</b><span class="g">sin email en la ficha</span></div>';
+    var t = p.est === "ok" ? '✅ Aceptó el ' + privAdFecha(p.t.aceptadoEn) : p.est === "vieja" ? '⚠️ Aceptó una versión anterior (' + privAdFecha(p.t.aceptadoEn) + ')' : '⏳ No ha entrado o no ha aceptado';
+    return '<div class="pva-pr"><b>' + lbl + (nom ? ' · ' + privAdEsc(nom) : '') + '</b><span>' + privAdEsc(email) + '</span><span class="' + (p.est === "ok" ? "v" : "y") + '">' + t + '</span></div>';
+  }
+  var h = '<div class="pva-det">' + prog("Padre", j.padreNombre, j.padreEmail, f.pa) + prog("Madre", j.madreNombre, j.madreEmail, f.ma);
+  if (f.resp) h += '<div class="pva-pr"><b>Permisos</b><span>' + (c.origen === "papel" ? '📝 Registrado en papel por ' + privAdEsc(c.por || "") + (c.firmadoPor ? ' (firmó: ' + privAdEsc(c.firmadoPor) + ')' : '') : '📱 Respondió ' + privAdEsc(c.por || "")) + ' · ' + privAdFecha(c.en) + '</span>' +
+    ((c.historial || []).length > 1 ? '<span class="g">' + c.historial.length + ' cambios registrados</span>' : '') + '</div>';
+  if (privAd.papel && privAd.papel.id === j.id) {
+    var p = privAd.papel;
+    var P = [["fotos","📸 Fotos"],["salud","🩺 Salud"],["avisos","🔔 Avisos"]];
+    h += '<div class="pva-papel"><div class="pva-cfg-tit">📝 Registrar consentimiento en papel</div>' +
+      P.map(function(x){ return '<div class="pva-sn"><span>' + x[1] + '</span><button type="button" data-pvp="' + x[0] + '" data-v="1" class="si' + (p[x[0]] === true ? ' on' : '') + '">Sí</button><button type="button" data-pvp="' + x[0] + '" data-v="0" class="no' + (p[x[0]] === false ? ' on' : '') + '">No</button></div>'; }).join("") +
+      '<label>Quién lo firmó</label><input data-pvfirma value="' + privAdEsc(p.firmadoPor || "") + '" placeholder="Nombre del padre / madre">' +
+      '<div class="pva-nota">Guarda el papel firmado. Esto sustituye lo que hubiera y queda en el historial.</div>' +
+      '<div class="pva-2"><button type="button" class="pva-sec" data-pvpcancel>Cancelar</button><button type="button" class="pva-btn" data-pvpguardar="' + j.id + '">Guardar</button></div></div>';
+  } else {
+    h += '<button type="button" class="pva-sec" data-pvpapel="' + j.id + '">📝 Registrar consentimiento en papel</button>';
+  }
+  return h + '</div>';
+}
+async function privAdGuardarPapel(id) {
+  var p = privAd.papel; if (!p) return;
+  if (typeof p.fotos !== "boolean" || typeof p.salud !== "boolean" || typeof p.avisos !== "boolean") { toast("Marca Sí o No en los tres", "error"); return; }
+  var inp = document.querySelector("[data-pvfirma]"); var firma = inp ? inp.value.trim() : "";
+  if (!firma) { toast("Indica quién lo firmó", "error"); return; }
+  var j = (listaJugadores || []).find(function(x){ return x.id === id; }); if (!j) return;
+  try {
+    var ref = doc(db, "consentimientos", id), s = await getDoc(ref), ahora = new Date().toISOString();
+    var por = (auth.currentUser && auth.currentUser.email || "").toLowerCase();
+    var hist = (s.exists() && Array.isArray(s.data().historial)) ? s.data().historial.slice(-19) : [];
+    hist.push({ fotos: p.fotos, salud: p.salud, avisos: p.avisos, por: por, en: ahora, origen: "papel", firmadoPor: firma });
+    var datos = { alumnoId: id, alumnoNombre: ((j.nombre||"") + " " + (j.apellidos||"")).trim(), equipo: j.grupo || "", fotos: p.fotos, salud: p.salud, avisos: p.avisos, por: por, en: ahora, origen: "papel", firmadoPor: firma, historial: hist };
+    await setDoc(ref, datos);
+    privAd.cons[id] = datos; privAd.papel = null; privAdPintar(); toast("✅ Consentimiento en papel registrado", "ok");
+  } catch(e) { toast("Error: " + (e.message || e), "error"); }
+}
+async function privAdGuardarCfg() {
+  var cont = document.getElementById("privAdmin"), c = privAd.cfg, d = {};
+  cont.querySelectorAll("[data-pvc]").forEach(function(el){ d[el.dataset.pvc] = el.value.trim(); });
+  var nueva = cont.querySelector("[data-pvnueva]").checked;
+  if (nueva && !confirm("Todas las familias tendrán que volver a aceptar la política la próxima vez que entren. ¿Seguro?")) return;
+  d.version = nueva ? c.version + 1 : c.version;
+  d.actualizadoEn = new Date().toISOString();
+  try { await setDoc(doc(db, "configuracion", "privacidad"), d, { merge: true }); privAd.cfg = Object.assign(c, d); privAdPintar(); toast(nueva ? "✅ Guardado · versión " + d.version : "✅ Guardado", "ok"); }
+  catch(e) { toast("Error: " + (e.message || e), "error"); }
+}
+function privAdCsv() {
+  var act = (listaJugadores || []).filter(function(j){ return (j.estado || "activo") === "activo"; }).map(privAdFila);
+  if (privAd.equipo) act = act.filter(function(f){ return f.j.grupo === privAd.equipo; });
+  function sn(f, k) { return !f.resp ? "Sin responder" : (f[k] ? "Sí" : "No"); }
+  var rows = [["Jugador","Equipo","Política aceptada","Fotos","Salud","Avisos","Origen","Fecha"]];
+  act.sort(function(a,b){ return (a.j.grupo||"").localeCompare(b.j.grupo||"") || (a.j.nombre||"").localeCompare(b.j.nombre||""); }).forEach(function(f){
+    rows.push([(f.j.nombre||"") + " " + (f.j.apellidos||""), f.j.grupo || "", f.acepto ? "Sí" : "No", sn(f,"fotos"), sn(f,"salud"), sn(f,"avisos"), f.c ? (f.c.origen || "") : "", f.c ? privAdFecha(f.c.en) : ""]);
+  });
+  var csv = "﻿" + rows.map(function(r){ return r.map(function(x){ return '"' + String(x).replace(/"/g,'""') + '"'; }).join(";"); }).join("\r\n");
+  var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  a.download = "privacidad" + (privAd.equipo ? "-" + privAd.equipo.replace(/\s+/g,"_") : "") + ".csv"; document.body.appendChild(a); a.click(); a.remove();
+}
+(function conectarPrivAdmin(){
+  var cont = document.getElementById("privAdmin"); if (!cont) return;
+  cont.addEventListener("click", function(ev){
+    var t = ev.target, b;
+    if ((b = t.closest("[data-pvf]"))) { privAd.filtro = b.dataset.pvf; privAdPintar(); return; }
+    if ((b = t.closest("[data-pvab]"))) { privAd.abierto = privAd.abierto === b.dataset.pvab ? null : b.dataset.pvab; privAd.papel = null; privAdPintar(); return; }
+    if ((b = t.closest("[data-pvpapel]"))) { var c0 = privAd.cons[b.dataset.pvpapel] || {}; privAd.papel = { id: b.dataset.pvpapel, fotos: null, salud: null, avisos: null, firmadoPor: "" }; privAdPintar(); return; }
+    if ((b = t.closest("[data-pvp]"))) { var fi = cont.querySelector("[data-pvfirma]"); if (fi) privAd.papel.firmadoPor = fi.value; privAd.papel[b.dataset.pvp] = b.dataset.v === "1"; privAdPintar(); return; }
+    if (t.closest("[data-pvpcancel]")) { privAd.papel = null; privAdPintar(); return; }
+    if ((b = t.closest("[data-pvpguardar]"))) { privAdGuardarPapel(b.dataset.pvpguardar); return; }
+    if (t.closest("[data-pvguardarcfg]")) { privAdGuardarCfg(); return; }
+    if (t.closest("[data-pvcsv]")) { privAdCsv(); return; }
+  });
+  cont.addEventListener("change", function(ev){ if (ev.target.matches("[data-pveq]")) { privAd.equipo = ev.target.value; privAdPintar(); } });
+  cont.addEventListener("input", function(ev){
+    if (ev.target.matches("[data-pvbusca]")) {
+      privAd.busca = ev.target.value.trim().toLowerCase();
+      var pos = ev.target.selectionStart; privAdPintar();
+      var n = cont.querySelector("[data-pvbusca]"); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch(e) {} }
+    }
+  });
+})();
+// Aviso en la ficha del jugador
+async function privAdFichaBadge(j) {
+  var el = document.getElementById("fichaPrivH"); if (!el) return;
+  el.textContent = "";
+  try {
+    var s = await getDoc(doc(db, "consentimientos", j.id));
+    if (fichaJugadorId !== j.id) return;
+    var c = s.exists() ? s.data() : null, f = [];
+    if (!c) { el.innerHTML = '<span style="color:#ff8a8a;">🔒 Permisos sin responder (cuenta como No)</span>'; return; }
+    if (c.fotos !== true) f.push("📸 sin fotos"); if (c.salud !== true) f.push("🩺 sin salud"); if (c.avisos !== true) f.push("🔔 sin avisos");
+    el.innerHTML = f.length ? '<span style="color:#f0b429;">🔒 ' + f.join(" · ") + '</span>' : '<span style="color:#4fd583;">🔒 Permisos: todo Sí</span>';
+  } catch(e) {}
+}
+
 // === Visibilidad para familias ===
 var VIS_KEYS = ["minutos","promedio","pctMin","titular","goles","asistencias","golesEncajados","propias","tarjetas","asistenciaEntrenos","notas","carta","cuotas"];
 async function cargarParteMedico(){
@@ -3144,6 +3392,7 @@ async function verFichaJugador(id) {
   document.getElementById("fichaTotalSes").textContent="..."; document.getElementById("fichaPres").textContent="..."; document.getElementById("fichaPct").textContent="...";
   var cont=document.getElementById("fichaContenido"); cont.innerHTML='<div class="cargando">Cargando...</div>';
   document.getElementById("modalFicha").classList.add("abierto");
+  try { privAdFichaBadge(j); } catch(ePv) {}
 
   // Helper: crear sección acordeón
   function _acord(titulo, htmlInner, abierto) {

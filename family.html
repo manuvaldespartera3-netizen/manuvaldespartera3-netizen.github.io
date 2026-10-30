@@ -598,6 +598,29 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 .cf-pasos .p:first-child:before{display:none;}
 .cf-pasos .p.ok{color:#ddd;} .cf-pasos .p.ok i{background:#25a352;} .cf-pasos .p.ok:before{background:#25a352;}
 .cf-pasos .p small{display:block;font-weight:500;color:#777;font-size:9px;margin-top:1px;}
+.priv-ov{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:10050;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 14px;}
+.priv-box{width:100%;max-width:440px;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:18px;padding:18px 16px;color:#d0d0c8;font-family:"DM Sans",sans-serif;}
+.priv-tit{color:#fff;font-size:20px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.priv-n{font-size:12px;background:#222;color:#aaa;border-radius:10px;padding:2px 8px;}
+.priv-sub{font-size:13px;color:#999;line-height:1.5;margin-bottom:12px;} .priv-sub b{color:#fff;}
+.priv-card{background:#141414;border:1px solid #2a2a2a;border-radius:13px;padding:12px;margin-bottom:12px;}
+.priv-card ul{margin:0 0 0 16px;padding:0;} .priv-card li{font-size:13px;color:#ddd;line-height:1.5;margin-bottom:6px;} .priv-card li b{color:#fff;}
+.priv-lnk{background:none;border:none;color:#9cc3ee;text-decoration:underline;font-size:13px;cursor:pointer;padding:6px 0 0;font-family:inherit;}
+.priv-completa{font-size:12.5px;color:#bbb;line-height:1.55;margin-top:8px;max-height:260px;overflow-y:auto;border-top:1px solid #222;padding-top:8px;} .priv-completa b{color:#fff;}
+.priv-chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#ddd;line-height:1.45;cursor:pointer;margin:6px 0 4px;}
+.priv-chk i{width:24px;height:24px;border-radius:6px;border:2px solid #555;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-style:normal;color:#fff;font-size:13px;}
+.priv-chk.on i{background:#25a352;border-color:#25a352;} .priv-chk b{color:#fff;}
+.priv-btn{display:block;width:100%;padding:14px;border-radius:12px;border:none;background:#25a352;color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:12px;}
+.priv-btn:disabled{opacity:.4;}
+.priv-salir{display:block;width:100%;background:none;border:none;color:#888;font-size:13px;padding:12px;cursor:pointer;font-family:inherit;}
+.priv-nota{font-size:11.5px;color:#777;text-align:center;line-height:1.4;}
+.priv-hijo{background:#141414;border:1px solid #2a2a2a;border-radius:12px;padding:10px 12px;margin-bottom:10px;color:#ddd;font-size:14px;} .priv-hijo b{color:#fff;} .priv-hijo span{display:block;font-size:11.5px;color:#888;margin-top:2px;}
+.priv-cons{border:1px solid #2a2a2a;background:#1a1a1a;border-radius:12px;padding:11px 12px;margin-bottom:8px;}
+.priv-cons b{display:block;color:#fff;font-size:14px;} .priv-cons span{display:block;font-size:12px;color:#999;line-height:1.4;margin:3px 0 8px;}
+.priv-sino{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.priv-sino button{padding:11px;border-radius:10px;border:1px solid #2a2a2a;background:#141414;color:#aaa;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;}
+.priv-sino button.si.on{background:rgba(37,163,82,.18);border-color:#25a352;color:#6fd897;}
+.priv-sino button.no.on{background:rgba(224,60,60,.15);border-color:#e03c3c;color:#ff8a8a;}
 </style>
 </head>
 <body>
@@ -671,6 +694,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
       </div>
       <button id="btnVerCartaFam" style="width:100%;margin:0 0 16px;padding:13px;background:linear-gradient(135deg,#0d2b5e,#4a90d9);border:none;color:#fff;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 6px 16px rgba(74,144,217,.25);">🎴 Ver la carta de mi jugador</button>
       <button id="btnComFamIr" type="button" style="width:100%;margin:-6px 0 16px;padding:12px;background:#141414;border:1px solid rgba(74,144,217,.35);color:#cfe3ff;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;position:relative;">📮 Hablar con el club<span id="comFamBadge" style="display:none;margin-left:8px;background:var(--rojo);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:800;"></span></button>
+      <button id="btnPrivFam" type="button" style="width:100%;margin:-8px 0 16px;padding:10px;background:none;border:1px dashed #333;color:#9aa;border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">🔒 Privacidad y permisos de mi hijo</button>
       <div class="donut-wrap">
         <svg width="120" height="120" viewBox="0 0 120 120">
           <circle cx="60" cy="60" r="50" fill="none" stroke="var(--borde)" stroke-width="18"/>
@@ -1004,7 +1028,7 @@ document.querySelectorAll(".tab").forEach(function(t) {
 });
 document.getElementById("selectorHijo").addEventListener("change", function() {
   hijoActual = hijosData.find(function(h) { return h.id === this.value; }, this);
-  if (hijoActual) { cargarTodo(); iniciarFCM(); try { comFamComprobar(); } catch(eCf) {} }
+  if (hijoActual) { cargarTodo(); if (privAvisosOk(hijoActual.id)) iniciarFCM(); else privQuitarAvisos(hijoActual.id); try { comFamComprobar(); } catch(eCf) {} }
 });
 
 function toast(msg) {
@@ -1029,10 +1053,13 @@ async function buscarHijos(email) {
       document.getElementById("selectorWrap").style.display = "block";
     }
     hijoActual = hijosData[0];
+    try { await privCargarCons(); } catch(ePv) {}      // permisos de fotos/avisos antes de pintar
     await cargarDatosGlobales();
     cargarTodo();
     mostrarDecalogo();
-    iniciarFCM(); // Vincular dispositivo con OneSignal
+    if (privAvisosOk(hijoActual.id)) iniciarFCM(); // Vincular dispositivo con OneSignal (solo con permiso)
+    else privQuitarAvisos(hijoActual.id);
+    try { privComprobarAlEntrar(); } catch(ePc) {}
     try { comFamComprobar(); } catch(eCf) {}
   } catch(e) { console.error("Error buscando hijos:", e); }
 }
@@ -1117,6 +1144,10 @@ function cargarTodo() {
     fotoEl._lightboxHandler = function() { if(hijoActual && hijoActual.photoUrl) abrirLightboxFam(hijoActual.photoUrl); };
     fotoEl.addEventListener("click", fotoEl._lightboxHandler);
     document.getElementById("hijoAvEmoji").style.display = "none";
+  } else {
+    var fotoEl0 = document.getElementById("hijoFoto"), emo0 = document.getElementById("hijoAvEmoji");
+    if (fotoEl0) { fotoEl0.style.display = "none"; fotoEl0.removeAttribute("src"); }
+    if (emo0) emo0.style.display = "";
   }
   renderPagos(hijoActual);
   renderDonut(1); renderDonut(2);
@@ -1870,6 +1901,158 @@ async function cfEnviar(btn) {
     var m = document.querySelector('#moreSheetFam .more-item[data-target="comunicaciones"]');
     if (m) m.click(); else { var tb = document.querySelector('.tab[data-sec="comunicaciones"]'); if (tb) tb.click(); }
   });
+})();
+
+// ════════════════════════════════════════════════════════════════
+// PRIVACIDAD (familia): aceptar la política al entrar y permisos de cada hijo.
+//  · usuarios/{uid}.terminos = { version, aceptadoEn, email }  ← cada padre/madre acepta por su cuenta
+//  · consentimientos/{alumnoId} = { fotos, salud, avisos (true/false), por, porNombre, en, origen:"app", historial:[…] }
+//  · configuracion/privacidad = { version, nombreClub, email, texto }  ← lo edita Admin
+// Sin respuesta = «No»: no se muestra la foto, no se activan los avisos.
+// ════════════════════════════════════════════════════════════════
+var privCfg = null, privCons = {}, privAceptada = false;
+function privEsc(s) { return String(s === undefined || s === null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+async function privCargarCfg() {
+  if (privCfg) return privCfg;
+  var c = { version: 1, nombreClub: "", email: "", texto: "" };
+  try { var s = await getDoc(doc(db, "configuracion", "privacidad")); if (s.exists()) c = Object.assign(c, s.data()); } catch(e) {}
+  if (!c.nombreClub) {
+    try { var sc = await getDocs(query(collection(db, "configuracion"), where("tipo", "==", "club"))); if (!sc.empty) c.nombreClub = sc.docs[0].data().nombre || ""; } catch(e2) {}
+  }
+  if (!c.nombreClub) c.nombreClub = "el club";
+  c.version = parseInt(c.version, 10) || 1;
+  privCfg = c; return c;
+}
+function privTextoCompleto(c) {
+  if (c.texto && String(c.texto).trim()) return privEsc(c.texto).replace(/\n/g, "<br>");
+  return '<b>Responsable:</b> ' + privEsc(c.nombreClub) + (c.email ? ' (' + privEsc(c.email) + ')' : '') + '. La aplicación la presta Manuel Oriol Becerril (Córner App) como encargado del tratamiento, por cuenta del club.<br><br>' +
+    '<b>Qué datos y para qué:</b> datos del jugador y de su familia para gestionar la inscripción, entrenamientos, partidos, cuotas y la comunicación con el club. Fotos, datos de salud y avisos al móvil solo con vuestro permiso.<br><br>' +
+    '<b>Quién los ve:</b> el cuerpo técnico de su equipo, coordinación y dirección, cada uno lo necesario. Cada familia ve solo los datos de sus hijos. Los proveedores técnicos de la app (Google Firebase, con los datos en la UE; Cloudinary y OneSignal) solo para que funcione. No se ceden a terceros salvo obligación legal o de la competición.<br><br>' +
+    '<b>Cuánto tiempo:</b> mientras el jugador esté en el club y el plazo que fije el club tras la baja.<br><br>' +
+    '<b>Tus derechos:</b> ver, corregir, borrar, limitar u oponerte, y llevar tus datos a otro sitio, escribiendo al club' + (c.email ? ' (' + privEsc(c.email) + ')' : '') + '. Puedes retirar los permisos cuando quieras desde Mi hijo › Privacidad. Puedes reclamar ante la AEPD (www.aepd.es).<br><br>' +
+    '<b>Normas de uso:</b> la cuenta es personal; no compartas la contraseña ni difundas datos, fotos o comunicaciones de otros jugadores o familias.';
+}
+function privOverlay(html) {
+  var prev = document.getElementById("privOverlay"); if (prev) prev.remove();
+  var ov = document.createElement("div"); ov.id = "privOverlay"; ov.className = "priv-ov";
+  ov.innerHTML = '<div class="priv-box">' + html + '</div>';
+  document.body.appendChild(ov); return ov;
+}
+function privCerrar() { var o = document.getElementById("privOverlay"); if (o) o.remove(); }
+// Aplica los permisos al hijo en memoria: sin «sí» a fotos, no se muestra la foto
+function privAplicarHijos() {
+  (hijosData || []).forEach(function(h) {
+    if (h._fotoOrig === undefined) h._fotoOrig = h.photoUrl || "";
+    var c = privCons[h.id];
+    h.photoUrl = (c && c.fotos === true) ? h._fotoOrig : "";
+  });
+}
+// Sin permiso de avisos: este móvil deja de estar vinculado al jugador (no le llegan avisos)
+async function privQuitarAvisos(aid) {
+  try { if (window._OS && window._OS.User && window._OS.User.externalId === aid) await window._OS.logout(); } catch(e) {}
+  try { await deleteDoc(doc(db, "onesignal_players", aid)); } catch(e3) {}
+}
+function privAvisosOk(aid) { var c = privCons[aid]; return !!(c && c.avisos === true); }
+function privPendientes() { return (hijosData || []).filter(function(h){ var c = privCons[h.id]; return !c || typeof c.fotos !== "boolean" || typeof c.salud !== "boolean" || typeof c.avisos !== "boolean"; }); }
+async function privCargarCons() {
+  privCons = {};
+  for (var i = 0; i < (hijosData || []).length; i++) {
+    try { var s = await getDoc(doc(db, "consentimientos", hijosData[i].id)); if (s.exists()) privCons[hijosData[i].id] = s.data(); } catch(e) {}
+  }
+  privAplicarHijos();
+}
+// Se llama al entrar: 1) aceptar la política (si falta o cambió), 2) permisos de los hijos sin responder
+async function privComprobarAlEntrar() {
+  try {
+    var c = await privCargarCfg();
+    await privCargarCons();
+    var u = auth.currentUser, acept = null;
+    try { var su = await getDoc(doc(db, "usuarios", u.uid)); if (su.exists()) acept = su.data().terminos || null; } catch(e) {}
+    privAceptada = !!(acept && (parseInt(acept.version, 10) || 0) >= c.version);
+    if (!privAceptada) { privMostrarTerminos(c); return; }
+    var pend = privPendientes();
+    if (pend.length) privMostrarPermisos(pend, 0, true);
+  } catch(e) { console.warn("privacidad:", e); }
+}
+function privMostrarTerminos(c) {
+  var ov = privOverlay(
+    '<div class="priv-tit">🔒 Antes de entrar</div>' +
+    '<div class="priv-sub">Para usar la app de ' + privEsc(c.nombreClub) + ' necesitamos que leas y aceptes cómo tratamos los datos de tu familia.' + (c.version > 1 ? ' <b>Hemos actualizado el texto.</b>' : '') + '</div>' +
+    '<div class="priv-card"><ul>' +
+      '<li><b>Responsable:</b> ' + privEsc(c.nombreClub) + '. La app la presta Córner App por encargo del club.</li>' +
+      '<li><b>Para qué:</b> organizar entrenamientos, partidos, cuotas y la comunicación con la familia.</li>' +
+      '<li><b>Quién lo ve:</b> el cuerpo técnico de su equipo, coordinación y dirección. Nunca otras familias.</li>' +
+      '<li><b>Cuánto tiempo:</b> mientras el jugador esté en el club y el plazo legal después.</li>' +
+      '<li><b>Tus derechos:</b> ver, corregir o borrar tus datos escribiendo al club. Puedes reclamar ante la AEPD.</li>' +
+    '</ul><button type="button" class="priv-lnk" data-privleer="1">Leer la política completa ›</button><div class="priv-completa" style="display:none">' + privTextoCompleto(c) + '</div></div>' +
+    '<label class="priv-chk" data-privchk="1"><i></i><span>He leído y acepto la <b>política de privacidad</b> y las <b>normas de uso</b> de la app.</span></label>' +
+    '<button type="button" class="priv-btn" data-privacepto="1" disabled>Aceptar y entrar</button>' +
+    '<button type="button" class="priv-salir" data-privsalir="1">No acepto · salir</button>' +
+    '<div class="priv-nota">Se guarda tu aceptación con fecha y hora. Si no aceptas, no puedes usar la app.</div>');
+  var ok = false;
+  ov.addEventListener("click", async function(ev) {
+    if (ev.target.closest("[data-privleer]")) { var t = ov.querySelector(".priv-completa"); t.style.display = t.style.display === "none" ? "" : "none"; return; }
+    var ch = ev.target.closest("[data-privchk]");
+    if (ch) { ev.preventDefault(); ok = !ok; ch.classList.toggle("on", ok); ch.querySelector("i").textContent = ok ? "✓" : ""; ov.querySelector("[data-privacepto]").disabled = !ok; return; }
+    if (ev.target.closest("[data-privsalir]")) { try { await signOut(auth); } catch(e) {} window.location.replace("index.html"); return; }
+    var b = ev.target.closest("[data-privacepto]");
+    if (b && ok) {
+      b.disabled = true; b.textContent = "Guardando…";
+      try {
+        var u = auth.currentUser;
+        await setDoc(doc(db, "usuarios", u.uid), { email: (u.email || "").toLowerCase(), terminos: { version: c.version, aceptadoEn: new Date().toISOString(), email: (u.email || "").toLowerCase() } }, { merge: true });
+        privAceptada = true; privCerrar();
+        var pend = privPendientes();
+        if (pend.length) privMostrarPermisos(pend, 0, true);
+      } catch(e) { alert("No se pudo guardar: " + (e.message || e)); b.disabled = false; b.textContent = "Aceptar y entrar"; }
+    }
+  });
+}
+// Permisos de cada hijo (uno detrás de otro). obligatorio=true al entrar; false desde Mi hijo › Privacidad
+function privMostrarPermisos(lista, idx, obligatorio) {
+  var h = lista[idx]; if (!h) return;
+  var c = privCons[h.id] || {};
+  var resp = { fotos: (typeof c.fotos === "boolean") ? c.fotos : null, salud: (typeof c.salud === "boolean") ? c.salud : null, avisos: (typeof c.avisos === "boolean") ? c.avisos : null };
+  var P = [["fotos","📸 Fotos del jugador","Su foto en la ficha y en la carta del jugador, visible solo dentro de la app."],
+           ["salud","🩺 Datos de salud","Lesiones, recuperación y observaciones del área médica, para cuidar de él o ella en entrenamientos y partidos."],
+           ["avisos","🔔 Avisos al móvil","Convocatorias, cambios de horario y respuestas del club."]];
+  function pintar() {
+    var todo = P.every(function(p){ return resp[p[0]] !== null; });
+    return '<div class="priv-tit">✋ Permisos de tu hijo' + (lista.length > 1 ? ' <span class="priv-n">' + (idx + 1) + '/' + lista.length + '</span>' : '') + '</div>' +
+      '<div class="priv-sub">Elige Sí o No en cada uno: no hay nada marcado de antemano. La app funciona igual digas lo que digas, y puedes cambiarlo cuando quieras desde «Mi hijo › Privacidad».</div>' +
+      '<div class="priv-hijo">⚽ <b>' + privEsc((h.nombre || "") + " " + (h.apellidos || "")) + '</b><span>' + privEsc(h.grupo || "") + '</span></div>' +
+      P.map(function(p){ return '<div class="priv-cons"><b>' + p[1] + '</b><span>' + p[2] + '</span><div class="priv-sino"><button type="button" data-p="' + p[0] + '" data-v="1" class="si' + (resp[p[0]] === true ? ' on' : '') + '">Sí</button><button type="button" data-p="' + p[0] + '" data-v="0" class="no' + (resp[p[0]] === false ? ' on' : '') + '">No</button></div></div>'; }).join("") +
+      '<button type="button" class="priv-btn" data-privguardar="1"' + (todo ? '' : ' disabled') + '>Guardar</button>' +
+      (obligatorio ? '' : '<button type="button" class="priv-salir" data-privcancel="1">Cancelar</button>');
+  }
+  var ov = privOverlay(pintar());
+  ov.addEventListener("click", async function(ev) {
+    var b = ev.target.closest("[data-p]");
+    if (b) { resp[b.dataset.p] = b.dataset.v === "1"; ov.querySelector(".priv-box").innerHTML = pintar(); return; }
+    if (ev.target.closest("[data-privcancel]")) { privCerrar(); return; }
+    var g = ev.target.closest("[data-privguardar]");
+    if (g && !g.disabled) {
+      g.disabled = true; g.textContent = "Guardando…";
+      try {
+        var u = auth.currentUser, ahora = new Date().toISOString(), email = (u.email || "").toLowerCase();
+        var ref = doc(db, "consentimientos", h.id), s = await getDoc(ref);
+        var hist = (s.exists() && Array.isArray(s.data().historial)) ? s.data().historial.slice(-19) : [];
+        hist.push({ fotos: resp.fotos, salud: resp.salud, avisos: resp.avisos, por: email, en: ahora, origen: "app" });
+        var datos = { alumnoId: h.id, alumnoNombre: ((h.nombre || "") + " " + (h.apellidos || "")).trim(), equipo: h.grupo || "",
+                      fotos: resp.fotos, salud: resp.salud, avisos: resp.avisos, por: email, en: ahora, origen: "app", historial: hist };
+        await setDoc(ref, datos);
+        privCons[h.id] = datos; privAplicarHijos();
+        if (hijoActual && hijoActual.id === h.id) { try { cargarTodo(); } catch(e1) {} if (resp.avisos) { try { iniciarFCM(); } catch(e2) {} } }
+        if (!resp.avisos) { try { await privQuitarAvisos(h.id); } catch(e3) {} }
+        if (idx + 1 < lista.length) privMostrarPermisos(lista, idx + 1, obligatorio);
+        else { privCerrar(); toast("✅ Permisos guardados"); }
+      } catch(e) { alert("No se pudo guardar: " + (e.message || e)); g.disabled = false; g.textContent = "Guardar"; }
+    }
+  });
+}
+(function conectarPrivFam(){
+  var b = document.getElementById("btnPrivFam");
+  if (b) b.addEventListener("click", function(){ if (hijoActual) privMostrarPermisos([hijoActual], 0, false); });
 })();
 
 // ── DECÁLOGO / CARTELERÍA (rotación diaria de hasta 5 imágenes de patrocinadores) ──
