@@ -1353,6 +1353,24 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
 .pva-cfg textarea{min-height:90px;resize:vertical;line-height:1.45;}
 .pva-cfg label.pva-ck{display:flex;gap:8px;align-items:flex-start;text-transform:none;letter-spacing:0;font-size:12.5px;color:#ccc;font-weight:500;line-height:1.4;} .pva-ck input{width:auto;margin-top:2px;} .pva-ck b{color:#fff;}
 .pva-btn{display:block;width:100%;padding:11px;border-radius:10px;border:none;background:#25a352;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px;}
+
+/* ═══ CONVOCATORIAS / EQUIPACIONES (admin) ═══ */
+.cva-kp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
+.cva-kp div{background:#141414;border:1px solid #2a2a2a;border-radius:11px;padding:8px 4px;text-align:center;}
+.cva-kp b{display:block;font-size:20px;color:#6fd897;} .cva-kp span{font-size:9.5px;color:#888;font-weight:700;text-transform:uppercase;}
+.cva-kp .y b{color:#f0b429;} .cva-kp .r b{color:#ff8a8a;}
+.cva-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #2a2a2a;border-left:4px solid #25a352;background:#141414;border-radius:12px;margin-bottom:6px;}
+.cva-row.y{border-left-color:#f0b429;} .cva-row.r{border-left-color:#e03c3c;}
+.cva-row .tx{flex:1;min-width:0;} .cva-row b{color:#fff;font-size:13px;display:block;} .cva-row .tx span{font-size:11.5px;color:#888;display:block;line-height:1.45;}
+.cva-eqp{display:flex;gap:1px;flex-shrink:0;} .cva-eqp:empty{display:none;}
+.cva-tag{font-size:10px;font-weight:800;border-radius:20px;padding:3px 8px;flex-shrink:0;}
+.cva-tag.v{background:rgba(37,163,82,.15);color:#6fd897;} .cva-tag.y{background:rgba(240,180,41,.15);color:#f0b429;} .cva-tag.r{background:rgba(224,60,60,.15);color:#ff8a8a;}
+.eqa-b{display:flex;gap:12px;align-items:center;background:#0a0a0a;border:1px solid #2a2a2a;border-radius:11px;padding:10px;margin-bottom:8px;}
+.eqa-prev{width:64px;display:flex;justify-content:center;flex-shrink:0;}
+.eqa-f{flex:1;min-width:0;} .eqa-f b{display:block;color:#fff;font-size:13px;margin-bottom:6px;}
+.eqa-f select{width:100%;padding:8px;background:#1c1c1c;border:1px solid #2a2a2a;color:#fff;border-radius:8px;font-family:inherit;font-size:13px;}
+.eqa-cols{display:flex;gap:10px;margin-top:6px;} .eqa-cols label{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#999;}
+.eqa-cols input[type=color]{width:38px;height:30px;border:1px solid #333;border-radius:6px;background:none;padding:0;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -1424,6 +1442,10 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
 
       <!-- Panel cuotas pendientes (colapsable) -->
       <div id="panelCuotas" style="display:none;margin-top:10px;"></div>
+
+      <!-- Convocatorias de los próximos 7 días -->
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--bl);letter-spacing:.5px;margin:16px 0 10px;">📣 Convocatorias · próximos 7 días</div>
+      <div id="inicioConvocatorias"><div class="cargando">Cargando...</div></div>
 
       <!-- Próximos partidos y eventos (no entrenamientos) -->
       <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--bl);letter-spacing:.5px;margin:16px 0 10px;">📅 Próximos partidos y eventos</div>
@@ -1669,6 +1691,7 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
     <!-- EQUIPOS: hub por equipo — clasificación, material y plantilla, sin quitar nada de lo que ya existe -->
     <div class="sec" id="sec-equipos">
       <div class="sec-titulo">🏟️ Equipos</div>
+      <div class="eq-tab-bloque" id="eqpAdmin" style="margin-bottom:14px;"></div>
       <div class="eq-selector-wrap" style="margin-bottom:14px;"><label>Equipo</label><select id="eqTabSelect"></select></div>
       <div id="eqTabVacio" class="vacio" style="padding:24px;text-align:center;color:#666;">Elige un equipo para ver toda su información.</div>
       <div id="eqTabPanel" style="display:none;">
@@ -2745,6 +2768,124 @@ async function privAdFichaBadge(j) {
   } catch(e) {}
 }
 
+// ═══ EQUIPACIONES (núcleo común admin · coach · family) ═══
+// configuracion/equipaciones = { primera:{patron,c1,c2}, segunda:{patron,c1,c2} }
+// patron: "liso" | "rayas_h" | "rayas_v" | "mitades"
+var EQP_DEF = { primera: { patron: "rayas_h", c1: "#7cc4ec", c2: "#ffffff" }, segunda: { patron: "liso", c1: "#14244a", c2: "#14244a" } };
+var _eqpCfg = null, _eqpN = 0;
+function eqpCol(c, def) { return /^#[0-9a-f]{6}$/i.test(String(c || "")) ? c : def; }
+async function eqpCargarCfg(forzar) {
+  if (_eqpCfg && !forzar) return _eqpCfg;
+  var c = JSON.parse(JSON.stringify(EQP_DEF));
+  try {
+    var s = await getDoc(doc(db, "configuracion", "equipaciones"));
+    if (s.exists()) { var d = s.data(); ["primera", "segunda"].forEach(function(k){ if (d[k]) c[k] = Object.assign(c[k], d[k]); }); }
+  } catch(e) {}
+  _eqpCfg = c; return c;
+}
+function eqpCamiseta(e, px) {
+  px = px || 24; e = e || {};
+  var c1 = eqpCol(e.c1, "#7cc4ec"), c2 = eqpCol(e.c2, "#ffffff"), id = "eqpP" + (++_eqpN), defs = "", fill = c1;
+  if (e.patron === "rayas_h") { defs = '<pattern id="' + id + '" width="40" height="7" patternUnits="userSpaceOnUse"><rect width="40" height="7" fill="' + c1 + '"/><rect y="3.5" width="40" height="3.5" fill="' + c2 + '"/></pattern>'; fill = "url(#" + id + ")"; }
+  else if (e.patron === "rayas_v") { defs = '<pattern id="' + id + '" width="7" height="40" patternUnits="userSpaceOnUse"><rect width="7" height="40" fill="' + c1 + '"/><rect x="3.5" width="3.5" height="40" fill="' + c2 + '"/></pattern>'; fill = "url(#" + id + ")"; }
+  else if (e.patron === "mitades") { defs = '<linearGradient id="' + id + '" x1="0" x2="1" y1="0" y2="0"><stop offset="0.5" stop-color="' + c1 + '"/><stop offset="0.5" stop-color="' + c2 + '"/></linearGradient>'; fill = "url(#" + id + ")"; }
+  return '<svg class="eqp-svg" width="' + px + '" height="' + px + '" viewBox="0 0 40 40" aria-hidden="true" style="flex-shrink:0;"><defs>' + defs + '</defs>' +
+    '<path d="M14 4 L7 7 L1 13 L6 19 L10 16.5 L10 37 L30 37 L30 16.5 L34 19 L39 13 L33 7 L26 4 Q20 9 14 4 Z" fill="' + fill + '" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+}
+function eqpIconos(sel, px, cfg) {
+  cfg = cfg || _eqpCfg || EQP_DEF;
+  if (sel === "2") return eqpCamiseta(cfg.segunda, px);
+  if (sel === "ambas") return eqpCamiseta(cfg.primera, px) + eqpCamiseta(cfg.segunda, px);
+  return eqpCamiseta(cfg.primera, px);
+}
+function eqpTexto(sel) { return sel === "2" ? "2ª equipación" : sel === "ambas" ? "Las dos equipaciones" : "1ª equipación"; }
+function convFechaLarga(f) {
+  if (!f) return ""; var p = String(f).split("-"); if (p.length < 3) return f;
+  var d = new Date(+p[0], +p[1] - 1, +p[2]);
+  return ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][d.getDay()] + " " + (+p[2]) + "/" + (+p[1]);
+}
+function convFechaCorta(f) {
+  if (!f) return ""; var p = String(f).split("-"); if (p.length < 3) return f;
+  var d = new Date(+p[0], +p[1] - 1, +p[2]);
+  return ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"][d.getDay()] + " " + (+p[2]) + " " + ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][+p[1] - 1];
+}
+function convEsc(s) { return String(s === undefined || s === null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+// ════════════════════════════════════════════════════════════════
+// 👕 EQUIPACIONES DEL CLUB (Admin › Equipos) y 📣 CONVOCATORIAS DE LA SEMANA (Admin › Inicio)
+// ════════════════════════════════════════════════════════════════
+var eqpAdm = null;
+async function eqpAdmPintar() {
+  var el = document.getElementById("eqpAdmin"); if (!el) return;
+  if (!eqpAdm) { var c = await eqpCargarCfg(true); eqpAdm = JSON.parse(JSON.stringify(c)); }
+  var P = [["liso","Liso"],["rayas_h","Rayas horizontales"],["rayas_v","Rayas verticales"],["mitades","Mitad y mitad"]];
+  function bloque(k, tit) {
+    var e = eqpAdm[k];
+    return '<div class="eqa-b"><div class="eqa-prev">' + eqpCamiseta(e, 58) + '</div><div class="eqa-f"><b>' + tit + '</b>' +
+      '<select data-eqa="' + k + '" data-c="patron">' + P.map(function(x){ return '<option value="' + x[0] + '"' + (e.patron === x[0] ? ' selected' : '') + '>' + x[1] + '</option>'; }).join("") + '</select>' +
+      '<div class="eqa-cols"><label>Color 1<input type="color" data-eqa="' + k + '" data-c="c1" value="' + eqpCol(e.c1, "#7cc4ec") + '"></label>' +
+      (e.patron === "liso" ? '' : '<label>Color 2<input type="color" data-eqa="' + k + '" data-c="c2" value="' + eqpCol(e.c2, "#ffffff") + '"></label>') + '</div></div></div>';
+  }
+  el.innerHTML = '<div class="eq-tab-tit">👕 Equipaciones del club</div>' +
+    '<div style="font-size:11.5px;color:#888;margin:-4px 0 10px;line-height:1.45;">Así las verán las familias en la convocatoria. La de los porteros, el entrenador la pone en la nota de la convocatoria.</div>' +
+    bloque("primera", "1ª equipación") + bloque("segunda", "2ª equipación") +
+    '<button type="button" id="btnEqaGuardar" style="width:100%;padding:11px;background:var(--v);border:none;border-radius:9px;color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;margin-top:6px;">💾 Guardar equipaciones</button>';
+}
+(function conectarEqpAdmin(){
+  var el = document.getElementById("eqpAdmin"); if (!el) return;
+  el.addEventListener("input", function(ev){
+    var t = ev.target; if (!t.dataset.eqa) return;
+    eqpAdm[t.dataset.eqa][t.dataset.c] = t.value;
+    if (t.dataset.c === "patron") { eqpAdmPintar(); return; }
+    var prev = t.closest(".eqa-b").querySelector(".eqa-prev"); prev.innerHTML = eqpCamiseta(eqpAdm[t.dataset.eqa], 58);
+  });
+  el.addEventListener("change", function(ev){ if (ev.target.dataset && ev.target.dataset.c === "patron") { eqpAdm[ev.target.dataset.eqa].patron = ev.target.value; eqpAdmPintar(); } });
+  el.addEventListener("click", async function(ev){
+    if (!ev.target.closest("#btnEqaGuardar")) return;
+    var b = ev.target.closest("#btnEqaGuardar"); b.disabled = true; b.textContent = "Guardando…";
+    try {
+      var d = {}; ["primera","segunda"].forEach(function(k){ var e = eqpAdm[k]; d[k] = { patron: e.patron || "liso", c1: eqpCol(e.c1, "#7cc4ec"), c2: eqpCol(e.c2, eqpCol(e.c1, "#ffffff")) }; });
+      d.actualizadoEn = new Date().toISOString();
+      await setDoc(doc(db, "configuracion", "equipaciones"), d, { merge: true });
+      _eqpCfg = null; await eqpCargarCfg(true); toast("✅ Equipaciones guardadas", "ok");
+    } catch(e) { toast("Error: " + (e.message || e), "error"); }
+    b.disabled = false; b.textContent = "💾 Guardar equipaciones";
+  });
+})();
+
+async function convAdmPintar() {
+  var el = document.getElementById("inicioConvocatorias"); if (!el) return;
+  try {
+    await eqpCargarCfg();
+    var hoyD = new Date(), hoy = hoyD.toISOString().slice(0, 10), finD = new Date(hoyD.getTime() + 7 * 864e5), fin = finD.toISOString().slice(0, 10);
+    var sp = await getDocs(collection(db, "partidos")), ps = [];
+    sp.forEach(function(d){ var p = Object.assign({ id: d.id }, d.data()); if ((p.fecha || "") >= hoy && (p.fecha || "") <= fin) ps.push(p); });
+    ps.sort(function(a, b){ return ((a.fecha || "") + (a.hora || "")).localeCompare((b.fecha || "") + (b.hora || "")); });
+    if (!ps.length) { el.innerHTML = '<div style="font-size:12px;color:#777;padding:6px 2px 4px;">No hay partidos en los próximos 7 días.</div>'; return; }
+    var resp = {}, ids = ps.map(function(p){ return "partido-" + p.id; });
+    for (var i = 0; i < ids.length; i += 30) {
+      try { var sc = await getDocs(query(collection(db, "confirmaciones"), where("eventoId", "in", ids.slice(i, i + 30))));
+        sc.forEach(function(d){ var x = d.data(); (resp[x.eventoId] = resp[x.eventoId] || []).push(x); }); } catch(e1) {}
+    }
+    var nPub = 0, nBor = 0, nSin = 0, filas = "";
+    ps.forEach(function(p){
+      var c = p.convocatoria || {}, pub = c.estado === "publicada", datos = !!c.hora;
+      var nConv = Object.keys(p.jugadas || {}).filter(function(k){ return p.jugadas[k] && p.jugadas[k].convocado; }).length;
+      var cls, tag, det;
+      var cab = convFechaCorta(p.fecha) + (p.hora ? " " + convEsc(p.hora) : "");
+      if (pub) {
+        nPub++; cls = ""; tag = '<span class="cva-tag v">Publicada</span>';
+        var rs = (resp["partido-" + p.id] || []).filter(function(r){ return p.jugadas && p.jugadas[r.alumnoId] && p.jugadas[r.alumnoId].convocado; });
+        var si = rs.filter(function(r){ return r.asiste !== false; }).length, no = rs.filter(function(r){ return r.asiste === false; });
+        det = cab + ' · quedada ' + convEsc(c.hora) + ' · ' + (c.equipacion === "2" ? "2ª" : c.equipacion === "ambas" ? "las dos" : "1ª") + ' · ' + nConv + ' conv. · 👍 ' + si + ' 🚫 ' + no.length +
+              (no.length ? '<br><span style="color:#ff8a8a;">🚫 ' + no.map(function(r){ return convEsc(r.alumnoNombre || ""); }).join(", ") + '</span>' : '');
+      } else if (datos) { nBor++; cls = " y"; tag = '<span class="cva-tag y">Borrador</span>'; det = cab + ' · sin publicar aún'; }
+      else { nSin++; cls = " r"; tag = '<span class="cva-tag r">Sin hacer</span>'; det = cab + ' · sin hora ni lugar de quedada'; }
+      filas += '<div class="cva-row' + cls + '"><span class="cva-eqp">' + (pub ? eqpIconos(c.equipacion || "1", 20) : '') + '</span><div class="tx"><b>' + convEsc(p.equipo || "") + ' · ' + (p.localia === "fuera" ? "en " : "vs ") + convEsc(p.rival || "?") + '</b><span>' + det + '</span></div>' + tag + '</div>';
+    });
+    el.innerHTML = '<div class="cva-kp"><div><b>' + nPub + '</b><span>publicadas</span></div><div class="y"><b>' + nBor + '</b><span>en borrador</span></div><div class="r"><b>' + nSin + '</b><span>sin hacer</span></div></div>' + filas;
+  } catch(e) { el.innerHTML = '<div style="font-size:12px;color:#777;">No se pudieron cargar las convocatorias.</div>'; }
+}
+
 // === Visibilidad para familias ===
 var VIS_KEYS = ["minutos","promedio","pctMin","titular","goles","asistencias","golesEncajados","propias","tarjetas","asistenciaEntrenos","notas","carta","cuotas"];
 async function cargarParteMedico(){
@@ -2855,6 +2996,7 @@ async function arrancar() {
   await cargarInfoClub(); await cargarInfografias(); await cargarNormativaAdmin(); await cargarPushAdmin(); rellenarPushJugador();
   // Asistencia: ahora con botones rápidos (no cpick)
   cargarDiasRapidosAdmin();
+  try { convAdmPintar(); eqpAdmPintar(); } catch(eCv) { console.warn(eCv); }
   // Notas: date input simple (no cpick)
   var _nf = document.getElementById("notaFecha");
   if (_nf) _nf.value = hoy;

@@ -621,6 +621,31 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 .priv-sino button{padding:11px;border-radius:10px;border:1px solid #2a2a2a;background:#141414;color:#aaa;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;}
 .priv-sino button.si.on{background:rgba(37,163,82,.18);border-color:#25a352;color:#6fd897;}
 .priv-sino button.no.on{background:rgba(224,60,60,.15);border-color:#e03c3c;color:#ff8a8a;}
+
+/* ═══ CONVOCATORIA (familia) ═══ */
+.cvf{border-radius:16px;overflow:hidden;margin:0 0 16px;border:1px solid #333;background:#131313;}
+.cvf.si{border-color:rgba(37,163,82,.55);background:linear-gradient(160deg,rgba(37,163,82,.2),#101410 60%);}
+.cvf.pend{border-style:dashed;}
+.cvf.baja{border-color:rgba(224,60,60,.45);}
+.cvf-top{padding:12px 14px 4px;font-size:10.5px;font-weight:800;letter-spacing:.8px;color:#9aa;text-transform:uppercase;display:flex;justify-content:space-between;}
+.cvf-big{padding:2px 14px 8px;font-family:"Bebas Neue",Impact,sans-serif;font-size:34px;letter-spacing:.5px;line-height:1.05;color:#ccc;}
+.cvf.si .cvf-big{color:#6fd897;} .cvf.no .cvf-big{font-size:25px;} .cvf.pend .cvf-big{font-size:24px;color:#999;} .cvf.baja .cvf-big{font-size:25px;color:#ff8a8a;}
+.cvf-vs{padding:0 14px 12px;color:#fff;font-size:15px;font-weight:700;} .cvf-vs span{display:block;font-size:12px;color:#999;font-weight:500;margin-top:2px;line-height:1.4;}
+.cvf-dat{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.06);}
+.cvf-dat > div{background:#0f130f;padding:10px 12px;}
+.cvf-dat small{display:block;font-size:9.5px;font-weight:800;color:#888;letter-spacing:.6px;text-transform:uppercase;margin-bottom:4px;}
+.cvf-dat b{color:#fff;font-size:15px;display:flex;align-items:center;gap:4px;} .cvf-dat b.big{font-size:22px;color:#6fd897;} .cvf-dat b.lug{font-size:13.5px;line-height:1.35;}
+.cvf-eqt{margin-left:4px;}
+.cvf-dat .full{grid-column:1/-1;} .cvf-dat a{display:inline-block;color:#9cc3ee;font-size:12px;font-weight:600;margin-top:4px;text-decoration:none;}
+.cvf-nota{padding:10px 14px;font-size:12.5px;color:#ddd;line-height:1.45;border-top:1px solid rgba(255,255,255,.06);} .cvf-nota.gris{color:#999;}
+.cvf-acc{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px 12px;}
+.cvf-acc button{padding:11px 6px;border-radius:10px;font-weight:800;font-size:13px;font-family:inherit;cursor:pointer;border:1px solid #2a2a2a;background:#161616;color:#ccc;}
+.cvf-acc button:only-child{grid-column:1/-1;}
+.cvf-acc button.ok.on{background:rgba(37,163,82,.2);border-color:#25a352;color:#6fd897;}
+.cvf-acc button.ko.on{background:rgba(224,60,60,.15);border-color:#e03c3c;color:#ff8a8a;}
+.cvf-avis{padding:10px 14px 0;font-size:13px;color:#ff8a8a;font-weight:700;}
+.cvf-motivo{padding:10px 12px 0;} .cvf-motivo select{width:100%;padding:11px;border-radius:10px;background:#1c1c1c;border:1px solid #2a2a2a;color:#fff;font-size:15px;font-family:inherit;}
+.cvf-motivo .cvf-acc{padding:8px 0 12px;}
 </style>
 </head>
 <body>
@@ -692,6 +717,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
           <span class="jugador-estado" id="hijoEstadoFisico">Activo</span>
         </div>
       </div>
+      <div id="convFam"></div>
       <button id="btnVerCartaFam" style="width:100%;margin:0 0 16px;padding:13px;background:linear-gradient(135deg,#0d2b5e,#4a90d9);border:none;color:#fff;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 6px 16px rgba(74,144,217,.25);">🎴 Ver la carta de mi jugador</button>
       <button id="btnComFamIr" type="button" style="width:100%;margin:-6px 0 16px;padding:12px;background:#141414;border:1px solid rgba(74,144,217,.35);color:#cfe3ff;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;position:relative;">📮 Hablar con el club<span id="comFamBadge" style="display:none;margin-left:8px;background:var(--rojo);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;font-weight:800;"></span></button>
       <button id="btnPrivFam" type="button" style="width:100%;margin:-8px 0 16px;padding:10px;background:none;border:1px dashed #333;color:#9aa;border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">🔒 Privacidad y permisos de mi hijo</button>
@@ -1125,6 +1151,7 @@ function cargarTodo() {
   document.getElementById("hijoNombre").textContent = hijoActual.nombre + " " + hijoActual.apellidos;
   document.getElementById("hijoEquipo").textContent = "⚽ " + (hijoActual.grupo || "Escuela");
   document.getElementById("topbarEquipo").textContent = hijoActual.grupo || "Escuela";
+  try { convFamCargar(); } catch(eCv) {}
   var elEstF = document.getElementById("hijoEstadoFisico");
   if (elEstF) {
     var EF = { disponible:["✅ ACTIVO","est-activo"], lesionado:["🔴 LESIONADO","est-lesionado"], recuperacion:["🟡 EN RECUPERACIÓN","est-recuperacion"] };
@@ -1476,6 +1503,133 @@ async function guardarConfirmacion(ev, asiste, motivo) {
     renderSemana("calGridA","semLabelA",semOffsetA);
   } catch(e) { toast("Error: " + e.message); }
 }
+
+// ═══ EQUIPACIONES (núcleo común admin · coach · family) ═══
+// configuracion/equipaciones = { primera:{patron,c1,c2}, segunda:{patron,c1,c2} }
+// patron: "liso" | "rayas_h" | "rayas_v" | "mitades"
+var EQP_DEF = { primera: { patron: "rayas_h", c1: "#7cc4ec", c2: "#ffffff" }, segunda: { patron: "liso", c1: "#14244a", c2: "#14244a" } };
+var _eqpCfg = null, _eqpN = 0;
+function eqpCol(c, def) { return /^#[0-9a-f]{6}$/i.test(String(c || "")) ? c : def; }
+async function eqpCargarCfg(forzar) {
+  if (_eqpCfg && !forzar) return _eqpCfg;
+  var c = JSON.parse(JSON.stringify(EQP_DEF));
+  try {
+    var s = await getDoc(doc(db, "configuracion", "equipaciones"));
+    if (s.exists()) { var d = s.data(); ["primera", "segunda"].forEach(function(k){ if (d[k]) c[k] = Object.assign(c[k], d[k]); }); }
+  } catch(e) {}
+  _eqpCfg = c; return c;
+}
+function eqpCamiseta(e, px) {
+  px = px || 24; e = e || {};
+  var c1 = eqpCol(e.c1, "#7cc4ec"), c2 = eqpCol(e.c2, "#ffffff"), id = "eqpP" + (++_eqpN), defs = "", fill = c1;
+  if (e.patron === "rayas_h") { defs = '<pattern id="' + id + '" width="40" height="7" patternUnits="userSpaceOnUse"><rect width="40" height="7" fill="' + c1 + '"/><rect y="3.5" width="40" height="3.5" fill="' + c2 + '"/></pattern>'; fill = "url(#" + id + ")"; }
+  else if (e.patron === "rayas_v") { defs = '<pattern id="' + id + '" width="7" height="40" patternUnits="userSpaceOnUse"><rect width="7" height="40" fill="' + c1 + '"/><rect x="3.5" width="3.5" height="40" fill="' + c2 + '"/></pattern>'; fill = "url(#" + id + ")"; }
+  else if (e.patron === "mitades") { defs = '<linearGradient id="' + id + '" x1="0" x2="1" y1="0" y2="0"><stop offset="0.5" stop-color="' + c1 + '"/><stop offset="0.5" stop-color="' + c2 + '"/></linearGradient>'; fill = "url(#" + id + ")"; }
+  return '<svg class="eqp-svg" width="' + px + '" height="' + px + '" viewBox="0 0 40 40" aria-hidden="true" style="flex-shrink:0;"><defs>' + defs + '</defs>' +
+    '<path d="M14 4 L7 7 L1 13 L6 19 L10 16.5 L10 37 L30 37 L30 16.5 L34 19 L39 13 L33 7 L26 4 Q20 9 14 4 Z" fill="' + fill + '" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+}
+function eqpIconos(sel, px, cfg) {
+  cfg = cfg || _eqpCfg || EQP_DEF;
+  if (sel === "2") return eqpCamiseta(cfg.segunda, px);
+  if (sel === "ambas") return eqpCamiseta(cfg.primera, px) + eqpCamiseta(cfg.segunda, px);
+  return eqpCamiseta(cfg.primera, px);
+}
+function eqpTexto(sel) { return sel === "2" ? "2ª equipación" : sel === "ambas" ? "Las dos equipaciones" : "1ª equipación"; }
+function convFechaLarga(f) {
+  if (!f) return ""; var p = String(f).split("-"); if (p.length < 3) return f;
+  var d = new Date(+p[0], +p[1] - 1, +p[2]);
+  return ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][d.getDay()] + " " + (+p[2]) + "/" + (+p[1]);
+}
+function convFechaCorta(f) {
+  if (!f) return ""; var p = String(f).split("-"); if (p.length < 3) return f;
+  var d = new Date(+p[0], +p[1] - 1, +p[2]);
+  return ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"][d.getDay()] + " " + (+p[2]) + " " + ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][+p[1] - 1];
+}
+function convEsc(s) { return String(s === undefined || s === null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+// ════════════════════════════════════════════════════════════════
+// 📣 CONVOCATORIA EN «MI HIJO» (familia): próximo partido de su equipo.
+// Solo se enseña si el entrenador la ha publicado. Respuesta en confirmaciones/{hijo}_partido-{id}.
+// ════════════════════════════════════════════════════════════════
+var convFamEstado = { pid: null, conf: null, eligiendoNo: false };
+async function convFamCargar() {
+  var el = document.getElementById("convFam"); if (!el || !hijoActual) return;
+  var h = hijoActual;
+  try {
+    await eqpCargarCfg();
+    var hoy = fmtISO(new Date());
+    var sp = await getDocs(query(collection(db, "partidos"), where("equipo", "==", h.grupo || "")));
+    var ps = []; sp.forEach(function(d){ var p = Object.assign({ id: d.id }, d.data()); if ((p.fecha || "") >= hoy) ps.push(p); });
+    ps.sort(function(a, b){ return ((a.fecha || "") + (a.hora || "")).localeCompare((b.fecha || "") + (b.hora || "")); });
+    if (hijoActual !== h) return;
+    var p = ps[0];
+    if (!p) { el.innerHTML = ""; return; }
+    var med = null, conf = null;
+    try { var sm = await getDoc(doc(db, "medico", h.id)); if (sm.exists()) med = sm.data(); } catch(e1) {}
+    try { var sc = await getDoc(doc(db, "confirmaciones", h.id + "_partido-" + p.id)); if (sc.exists()) conf = sc.data(); } catch(e2) {}
+    if (hijoActual !== h) return;
+    if (convFamEstado.pid !== p.id || convFamEstado.hid !== h.id) convFamEstado.eligiendoNo = false;
+    convFamEstado.pid = p.id; convFamEstado.hid = h.id; convFamEstado.p = p; convFamEstado.med = med; convFamEstado.conf = conf;
+    convFamPintar();
+  } catch(e) { console.warn("convocatoria:", e); el.innerHTML = ""; }
+}
+function convFamPintar() {
+  var el = document.getElementById("convFam"), h = hijoActual, st = convFamEstado, p = st.p; if (!el || !p || !h) return;
+  var c = p.convocatoria || {}, pub = c.estado === "publicada";
+  var j = (p.jugadas || {})[h.id], conv = pub && j && j.convocado;
+  var baja = st.med && (st.med.estado === "lesionado" || st.med.estado === "recuperacion");
+  var casa = p.localia !== "fuera";
+  var vs = casa ? convEsc(h.grupo || "Nosotros") + " – " + convEsc(p.rival || "?") : convEsc(p.rival || "?") + " – " + convEsc(h.grupo || "Nosotros");
+  var meta = (casa ? "🏠 Local" : "✈️ Visitante") + (p.jornada ? " · Jornada " + p.jornada : "") + (p.hora ? " · Partido a las " + convEsc(p.hora) : "");
+  var top = '<div class="cvf-top"><span>Próximo partido</span><span>' + convFechaCorta(p.fecha) + '</span></div>';
+  var html;
+  if (conv) {
+    var lugar = c.lugar || ((c.lugarTipo || "campo") === "campo" ? (p.lugar || "") : "");
+    var map = lugar ? '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(lugar) + '" target="_blank" rel="noopener">📍 Abrir en el mapa</a>' : '';
+    var r = st.conf, acc;
+    if (r && r.asiste === false) acc = '<div class="cvf-avis">🚫 Avisaste que no puede ir' + (r.motivo ? ' · ' + motivoLabelFam(r.motivo) : '') + '</div><div class="cvf-acc"><button type="button" data-cvf="si">↩️ Sí podrá ir</button></div>';
+    else if (st.eligiendoNo) acc = '<div class="cvf-motivo"><select id="cvfMotivo"><option value="">¿Por qué no puede ir?</option><option value="lesion">🩹 Lesión</option><option value="enfermedad">🤒 Enfermedad</option><option value="personal">📋 Causas personales</option><option value="seleccion">🌍 Convocatoria selección</option><option value="otros">✏️ Otros</option></select>' +
+      '<div class="cvf-acc"><button type="button" data-cvf="cancel">Cancelar</button><button type="button" data-cvf="enviarno" class="ko on">📩 Avisar</button></div></div>';
+    else acc = '<div class="cvf-acc"><button type="button" data-cvf="si" class="ok' + (r && r.asiste === true ? ' on' : '') + '">👍 Ahí estaremos</button><button type="button" data-cvf="no" class="ko">🚫 No puede ir</button></div>';
+    html = '<div class="cvf si">' + top + '<div class="cvf-big">✅ Convocado</div><div class="cvf-vs">' + vs + '<span>' + meta + '</span></div>' +
+      '<div class="cvf-dat"><div><small>Quedada</small><b class="big">' + convEsc(c.hora || "—") + '</b></div>' +
+      '<div><small>Equipación</small><b>' + eqpIconos(c.equipacion || "1", 26) + '<span class="cvf-eqt">' + (c.equipacion === "2" ? "2ª" : c.equipacion === "ambas" ? "Las dos" : "1ª") + '</span></b></div>' +
+      '<div class="full"><small>Lugar</small><b class="lug">' + convEsc(lugar || "—") + '</b>' + map + '</div></div>' +
+      (c.nota ? '<div class="cvf-nota">📝 ' + convEsc(c.nota) + '</div>' : '') + acc + '</div>';
+  } else if (baja) {
+    html = '<div class="cvf baja">' + top + '<div class="cvf-big">🩹 Baja médica</div><div class="cvf-vs">' + vs + '<span>' + (st.med.estado === "lesionado" ? "Lesionado" : "En recuperación") + ': no puede ser convocado. ¡Ánimo!</span></div></div>';
+  } else if (pub) {
+    html = '<div class="cvf no">' + top + '<div class="cvf-big">No convocado esta jornada</div><div class="cvf-vs">' + vs + '<span>' + meta + '</span></div>' +
+      '<div class="cvf-nota gris">Las convocatorias van rotando durante la temporada. Si tienes dudas, puedes escribir desde «Hablar con el club».</div></div>';
+  } else {
+    html = '<div class="cvf pend">' + top + '<div class="cvf-big">⏳ Convocatoria pendiente</div><div class="cvf-vs">' + vs + '<span>El entrenador aún no la ha publicado. Te llegará un aviso.</span></div></div>';
+  }
+  el.innerHTML = html;
+}
+async function convFamResponder(asiste, motivo) {
+  var h = hijoActual, p = convFamEstado.p; if (!h || !p) return;
+  var evId = "partido-" + p.id;
+  try {
+    var datos = { alumnoId: h.id, alumnoNombre: h.nombre + " " + (h.apellidos || ""), eventoId: evId, eventoTitulo: "Partido vs " + (p.rival || "?"), eventoFecha: p.fecha,
+                  equipo: h.grupo || "", asiste: asiste, motivo: motivo || "", actualizadoEn: Timestamp.now() };
+    await setDoc(doc(db, "confirmaciones", h.id + "_" + evId), datos);
+    convFamEstado.conf = datos; convFamEstado.eligiendoNo = false;
+    confirmacionesCache[evId] = { asiste: asiste, motivo: motivo || "" };
+    convFamPintar();
+    toast(asiste ? "👍 ¡Perfecto! El entrenador lo verá" : "📩 Aviso enviado · el entrenador lo verá");
+    try { renderCalMesFam(); } catch(e1) {}
+  } catch(e) { toast("Error: " + (e.message || e)); }
+}
+(function conectarConvFam(){
+  var el = document.getElementById("convFam"); if (!el) return;
+  el.addEventListener("click", function(ev){
+    var b = ev.target.closest("[data-cvf]"); if (!b) return;
+    var a = b.dataset.cvf;
+    if (a === "si") convFamResponder(true, "");
+    else if (a === "no") { convFamEstado.eligiendoNo = true; convFamPintar(); }
+    else if (a === "cancel") { convFamEstado.eligiendoNo = false; convFamPintar(); }
+    else if (a === "enviarno") { var m = document.getElementById("cvfMotivo").value; if (!m) { toast("Elige el motivo"); return; } convFamResponder(false, m); }
+  });
+})();
 
 // ─── CARTA DEL JUGADOR (familia) ───
 var _h2cLoadedFam = false;

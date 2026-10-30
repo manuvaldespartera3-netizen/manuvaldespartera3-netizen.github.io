@@ -1392,6 +1392,32 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
 .baja-medica-nota{font-size:11px;font-weight:800;color:#ff8a8a;background:rgba(224,60,60,.12);border:1px solid rgba(224,60,60,.35);border-radius:8px;padding:5px 8px;margin:6px 0 2px;}
 .pcm-card .baja-medica-nota{margin:8px 10px 10px;}
 .asi-baja-med{font-size:11.5px;font-weight:700;color:#ff8a8a;background:rgba(224,60,60,.1);border:1px solid rgba(224,60,60,.35);border-radius:8px;padding:6px 10px;margin:-4px 0 8px;}
+
+/* ═══ CONVOCATORIA (coach) ═══ */
+.pc-cv-box{border:1px solid rgba(74,144,217,.45);background:rgba(74,144,217,.05);border-radius:12px;padding:12px;}
+.pc-cv-tit{font-size:13px;font-weight:800;color:#fff;margin-bottom:2px;}
+.pc-cv-box label{margin-top:10px;}
+.pc-cv-eqp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.pc-cv-eqp button{border:1px solid var(--borde,#2a2a2a);background:#1a1a1a;border-radius:10px;padding:8px 4px;color:#bbb;font-weight:800;font-size:12px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.pc-cv-eqp button span{display:flex;gap:2px;min-height:24px;}
+.pc-cv-eqp button.on{border-color:#4a90d9;background:rgba(74,144,217,.15);color:#fff;}
+.pc-cv-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.pc-cv-chips button{padding:6px 10px;border-radius:20px;border:1px solid #2a2a2a;background:#141414;color:#aaa;font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer;}
+.pc-cv-chips button.on{border-color:#4a90d9;color:#4a90d9;background:rgba(74,144,217,.12);}
+.cv-panel{background:#141414;border:1px solid rgba(240,180,41,.45);border-radius:13px;padding:12px;margin:10px 0 14px;}
+.cv-panel.pub{border-color:rgba(37,163,82,.5);background:rgba(37,163,82,.05);}
+.cv-tit{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#fff;margin-bottom:8px;flex-wrap:wrap;}
+.cv-tag{margin-left:auto;font-size:10px;font-weight:800;border-radius:20px;padding:3px 8px;}
+.cv-tag.y{background:rgba(240,180,41,.15);color:#f0b429;} .cv-tag.v{background:rgba(37,163,82,.15);color:#6fd897;}
+.cv-falta{font-size:12.5px;color:#f0b429;line-height:1.45;} .cv-falta b{color:#fff;}
+.cv-res{display:flex;gap:10px;align-items:center;font-size:12.5px;color:#ccc;line-height:1.5;} .cv-res b{color:#fff;}
+.cv-eqp{display:flex;gap:2px;}
+.cv-nota{font-size:12px;color:#bbb;margin-top:6px;}
+.cv-resp{display:flex;gap:14px;font-size:12.5px;color:#aaa;margin-top:10px;padding-top:8px;border-top:1px solid #222;} .cv-resp b{color:#fff;}
+.cv-no{font-size:12px;color:#ff8a8a;margin-top:6px;line-height:1.5;}
+.cv-mini{font-size:11px;color:#777;margin-top:6px;line-height:1.4;} .cv-mini.c{text-align:center;}
+.cv-btn{display:block;width:100%;margin-top:10px;padding:12px;border-radius:11px;border:none;background:#25a352;color:#fff;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;}
+.cv-btn:disabled{opacity:.45;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -1852,6 +1878,26 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
                 <label>Lugar</label>
                 <input type="text" id="pLugar" placeholder="Ciudad Deportiva...">
               </div>
+              <div class="partido-form-campo ancho" id="pcConvBloque">
+                <div class="pc-cv-box">
+                  <div class="pc-cv-tit">📣 Convocatoria para las familias</div>
+                  <label>Equipación</label>
+                  <div class="pc-cv-eqp" id="pcEqp">
+                    <button type="button" data-eqp="1" class="on"><span data-ico="1"></span>1ª</button>
+                    <button type="button" data-eqp="2"><span data-ico="2"></span>2ª</button>
+                    <button type="button" data-eqp="ambas"><span data-ico="ambas"></span>Las dos</button>
+                  </div>
+                  <label>Hora de convocatoria (quedada)</label>
+                  <input type="time" id="pcHora">
+                  <div class="pc-cv-chips" id="pcHoraRel"><button type="button" data-hrel="30">30 min antes</button><button type="button" data-hrel="45">45 min antes</button><button type="button" data-hrel="60">1 h antes</button><button type="button" data-hrel="90">1 h 30 antes</button></div>
+                  <label>Lugar de quedada</label>
+                  <div class="pc-cv-chips" id="pcLugarTipo" style="margin:0 0 6px;"><button type="button" data-lt="campo" class="on">En el campo</button><button type="button" data-lt="club">En el club</button><button type="button" data-lt="otro">Otro sitio</button></div>
+                  <input type="text" id="pcLugar" placeholder="Si lo dejas vacío, se usa el lugar del partido">
+                  <label>Nota para las familias (opcional)</label>
+                  <input type="text" id="pcNota" maxlength="200" placeholder="Ej: porteros con la equipación verde · traer DNI">
+                  <div style="font-size:11px;color:#777;line-height:1.4;margin-top:6px;">Las familias solo lo ven cuando publiques la convocatoria desde el partido.</div>
+                </div>
+              </div>
               <div class="partido-form-campo ancho">
                 <label>URL del acta <span style="color:#555;font-weight:400;text-transform:none;">(opcional — enlace al PDF/web del acta del partido)</span></label>
                 <input type="url" id="pUrlActa" placeholder="https://...">
@@ -1883,6 +1929,7 @@ textarea.comx-inp.interna{min-height:46px;border-style:dashed;}
       <div id="partidosVistaDetalle" style="display:none">
         <button class="partido-detalle-volver" id="btnVolverPartidos">← Volver a partidos</button>
         <div class="partido-detalle-cabecera" id="cabeceraPartido"></div>
+        <div id="convPanel"></div>
 
         <div class="partido-stats-sticky">
           <div class="partido-stats-grid">
@@ -6604,6 +6651,7 @@ function abrirFormPartido(p) {
   document.getElementById("pFecha").value = p ? (p.fecha||"") : "";
   document.getElementById("pHora").value = p ? (p.hora||"") : "";
   document.getElementById("pLugar").value = p ? (p.lugar||"") : "";
+  try { convFormPintar(p); } catch(eCv) {}
   poblarSelectMinutosPartido(p);
   document.getElementById("pUrlActa").value = p ? (p.urlActa||"") : "";
   var _vids = (p && p.videos) || []; var _albs = (p && p.albumes) || [];
@@ -6674,6 +6722,7 @@ document.getElementById("btnGuardarPartidoForm").addEventListener("click", async
     localia: loc,
     goles_propio: golP === "" ? null : parseInt(golP),
     goles_rival: golR === "" ? null : parseInt(golR),
+    convocatoria: Object.assign({ estado: "borrador" }, (pPrev && pPrev.convocatoria) || {}, convFormLeer()),
     duracion_min: minRes.duracion,
     jugadores_en_campo: minRes.jugadores,
     minutos_totales: minRes.duracion * minRes.jugadores,
@@ -6694,6 +6743,7 @@ document.getElementById("btnGuardarPartidoForm").addEventListener("click", async
       if (partidoActualId === editId) {
         partidoActual = pAct;
         renderCabeceraPartido();
+        try { convPanelPintar(); } catch(eCv) {}
       }
       try { recParCalcular(); } catch(eRp) {}
     } else {
@@ -6718,6 +6768,190 @@ document.getElementById("btnGuardarPartidoForm").addEventListener("click", async
   btn.disabled = false; btn.textContent = "💾 Guardar";
 });
 
+// ═══ EQUIPACIONES (núcleo común admin · coach · family) ═══
+// configuracion/equipaciones = { primera:{patron,c1,c2}, segunda:{patron,c1,c2} }
+// patron: "liso" | "rayas_h" | "rayas_v" | "mitades"
+var EQP_DEF = { primera: { patron: "rayas_h", c1: "#7cc4ec", c2: "#ffffff" }, segunda: { patron: "liso", c1: "#14244a", c2: "#14244a" } };
+var _eqpCfg = null, _eqpN = 0;
+function eqpCol(c, def) { return /^#[0-9a-f]{6}$/i.test(String(c || "")) ? c : def; }
+async function eqpCargarCfg(forzar) {
+  if (_eqpCfg && !forzar) return _eqpCfg;
+  var c = JSON.parse(JSON.stringify(EQP_DEF));
+  try {
+    var s = await getDoc(doc(db, "configuracion", "equipaciones"));
+    if (s.exists()) { var d = s.data(); ["primera", "segunda"].forEach(function(k){ if (d[k]) c[k] = Object.assign(c[k], d[k]); }); }
+  } catch(e) {}
+  _eqpCfg = c; return c;
+}
+function eqpCamiseta(e, px) {
+  px = px || 24; e = e || {};
+  var c1 = eqpCol(e.c1, "#7cc4ec"), c2 = eqpCol(e.c2, "#ffffff"), id = "eqpP" + (++_eqpN), defs = "", fill = c1;
+  if (e.patron === "rayas_h") { defs = '<pattern id="' + id + '" width="40" height="7" patternUnits="userSpaceOnUse"><rect width="40" height="7" fill="' + c1 + '"/><rect y="3.5" width="40" height="3.5" fill="' + c2 + '"/></pattern>'; fill = "url(#" + id + ")"; }
+  else if (e.patron === "rayas_v") { defs = '<pattern id="' + id + '" width="7" height="40" patternUnits="userSpaceOnUse"><rect width="7" height="40" fill="' + c1 + '"/><rect x="3.5" width="3.5" height="40" fill="' + c2 + '"/></pattern>'; fill = "url(#" + id + ")"; }
+  else if (e.patron === "mitades") { defs = '<linearGradient id="' + id + '" x1="0" x2="1" y1="0" y2="0"><stop offset="0.5" stop-color="' + c1 + '"/><stop offset="0.5" stop-color="' + c2 + '"/></linearGradient>'; fill = "url(#" + id + ")"; }
+  return '<svg class="eqp-svg" width="' + px + '" height="' + px + '" viewBox="0 0 40 40" aria-hidden="true" style="flex-shrink:0;"><defs>' + defs + '</defs>' +
+    '<path d="M14 4 L7 7 L1 13 L6 19 L10 16.5 L10 37 L30 37 L30 16.5 L34 19 L39 13 L33 7 L26 4 Q20 9 14 4 Z" fill="' + fill + '" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+}
+function eqpIconos(sel, px, cfg) {
+  cfg = cfg || _eqpCfg || EQP_DEF;
+  if (sel === "2") return eqpCamiseta(cfg.segunda, px);
+  if (sel === "ambas") return eqpCamiseta(cfg.primera, px) + eqpCamiseta(cfg.segunda, px);
+  return eqpCamiseta(cfg.primera, px);
+}
+function eqpTexto(sel) { return sel === "2" ? "2ª equipación" : sel === "ambas" ? "Las dos equipaciones" : "1ª equipación"; }
+function convFechaLarga(f) {
+  if (!f) return ""; var p = String(f).split("-"); if (p.length < 3) return f;
+  var d = new Date(+p[0], +p[1] - 1, +p[2]);
+  return ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][d.getDay()] + " " + (+p[2]) + "/" + (+p[1]);
+}
+function convFechaCorta(f) {
+  if (!f) return ""; var p = String(f).split("-"); if (p.length < 3) return f;
+  var d = new Date(+p[0], +p[1] - 1, +p[2]);
+  return ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"][d.getDay()] + " " + (+p[2]) + " " + ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"][+p[1] - 1];
+}
+function convEsc(s) { return String(s === undefined || s === null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+// ════════════════════════════════════════════════════════════════
+// 📣 CONVOCATORIA PARA LAS FAMILIAS (coach)
+// partidos/{id}.convocatoria = { equipacion:"1"|"2"|"ambas", hora, lugarTipo:"campo"|"club"|"otro", lugar, nota,
+//   estado:"borrador"|"publicada", publicadaEn, publicadaPor, avisados:{alumnoId:bool}, publicadoDatos:{equipacion,hora,lugar,nota} }
+// Respuestas de las familias: confirmaciones/{alumnoId}_partido-{id} (eventoId "partido-{id}", asiste true/false, motivo)
+// ════════════════════════════════════════════════════════════════
+var convRespuestas = {}, convRespPid = null;
+function convFormLeer() {
+  var eq = document.querySelector("#pcEqp button.on"), lt = document.querySelector("#pcLugarTipo button.on");
+  return { equipacion: eq ? eq.dataset.eqp : "1", hora: document.getElementById("pcHora").value || "",
+           lugarTipo: lt ? lt.dataset.lt : "campo", lugar: document.getElementById("pcLugar").value.trim(), nota: document.getElementById("pcNota").value.trim() };
+}
+function convFormPintar(p) {
+  var c = (p && p.convocatoria) || {};
+  try { eqpCargarCfg().then(function(){ document.querySelectorAll("#pcEqp [data-ico]").forEach(function(s){ s.innerHTML = eqpIconos(s.dataset.ico, 24); }); }); } catch(e) {}
+  var eq = c.equipacion || "1", lt = c.lugarTipo || "campo";
+  document.querySelectorAll("#pcEqp button").forEach(function(b){ b.classList.toggle("on", b.dataset.eqp === eq); });
+  document.querySelectorAll("#pcLugarTipo button").forEach(function(b){ b.classList.toggle("on", b.dataset.lt === lt); });
+  document.querySelectorAll("#pcHoraRel button").forEach(function(b){ b.classList.remove("on"); });
+  document.getElementById("pcHora").value = c.hora || "";
+  document.getElementById("pcLugar").value = c.lugar || "";
+  document.getElementById("pcNota").value = c.nota || "";
+  document.getElementById("pcLugar").placeholder = lt === "club" ? "Ej: puerta del club · salida en autobús" : lt === "otro" ? "Dónde quedáis" : "Si lo dejas vacío, se usa el lugar del partido";
+}
+(function conectarConvForm(){
+  var w = document.getElementById("pcConvBloque"); if (!w) return;
+  w.addEventListener("click", function(ev){
+    var b = ev.target.closest("button"); if (!b) return;
+    if (b.dataset.eqp) { w.querySelectorAll("#pcEqp button").forEach(function(x){ x.classList.toggle("on", x === b); }); return; }
+    if (b.dataset.lt) {
+      w.querySelectorAll("#pcLugarTipo button").forEach(function(x){ x.classList.toggle("on", x === b); });
+      var inp = document.getElementById("pcLugar");
+      inp.placeholder = b.dataset.lt === "club" ? "Ej: puerta del club · salida en autobús" : b.dataset.lt === "otro" ? "Dónde quedáis" : "Si lo dejas vacío, se usa el lugar del partido";
+      if (b.dataset.lt === "campo") inp.value = "";
+      inp.focus(); return;
+    }
+    if (b.dataset.hrel) {
+      var h = document.getElementById("pHora").value;
+      if (!h) { toast("Pon primero la hora del partido", "error"); return; }
+      var p = h.split(":"), m = (+p[0]) * 60 + (+p[1]) - parseInt(b.dataset.hrel, 10); if (m < 0) m += 1440;
+      document.getElementById("pcHora").value = String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+      w.querySelectorAll("#pcHoraRel button").forEach(function(x){ x.classList.toggle("on", x === b); });
+    }
+  });
+})();
+function convLugarFinal(p) { var c = p.convocatoria || {}; return c.lugar || ((c.lugarTipo || "campo") === "campo" ? (p.lugar || "") : ""); }
+function convDatosClave(p) { var c = p.convocatoria || {}; return [c.equipacion || "1", c.hora || "", convLugarFinal(p), c.nota || ""].join("|"); }
+function convJugEquipo(p) { var l = jugadores.filter(function(j){ return j.grupo === p.equipo; }); return l.length ? l : jugadores.slice(); }
+function convCambios(p) {
+  var c = p.convocatoria || {}, av = c.avisados || {}, cambian = [];
+  convJugEquipo(p).forEach(function(j){ var ahora = !!(datosPartidoEdit[j.id] && datosPartidoEdit[j.id].convocado); if (!!av[j.id] !== ahora || !(j.id in av)) cambian.push(j); });
+  var pd = c.publicadoDatos || {}, clave = [pd.equipacion || "1", pd.hora || "", pd.lugar || "", pd.nota || ""].join("|");
+  return { jug: cambian, datos: c.estado === "publicada" && clave !== convDatosClave(p) };
+}
+async function convCargarRespuestas(p) {
+  convRespPid = p.id; convRespuestas = {};
+  try {
+    var s = await getDocs(query(collection(db, "confirmaciones"), where("eventoId", "==", "partido-" + p.id)));
+    if (convRespPid !== p.id) return;
+    s.forEach(function(d){ var x = d.data(); if (x.alumnoId) convRespuestas[x.alumnoId] = x; });
+  } catch(e) {}
+  convPanelPintar();
+}
+function convPanelPintar() {
+  var el = document.getElementById("convPanel"), p = partidoActual; if (!el || !p) return;
+  var c = p.convocatoria || {}, pub = c.estado === "publicada";
+  var hoy = new Date().toISOString().slice(0, 10), pasado = (p.fecha || "") < hoy;
+  var lugar = convLugarFinal(p), faltan = !c.hora || !lugar;
+  var nConv = Object.keys(datosPartidoEdit).filter(function(k){ return datosPartidoEdit[k] && datosPartidoEdit[k].convocado; }).length;
+  var cam = pub ? convCambios(p) : null, hayCambios = cam && (cam.jug.length || cam.datos);
+  var estTag = !pub ? '<span class="cv-tag y">Borrador</span>' : hayCambios ? '<span class="cv-tag y">Cambios sin avisar</span>' : '<span class="cv-tag v">Publicada</span>';
+  var h = '<div class="cv-panel' + (pub && !hayCambios ? ' pub' : '') + '"><div class="cv-tit">📣 Convocatoria para las familias ' + estTag + '</div>';
+  if (faltan) h += '<div class="cv-falta">Faltan ' + (!c.hora && !lugar ? 'la hora y el lugar' : !c.hora ? 'la hora' : 'el lugar') + ' de quedada. Pulsa <b>✏️ Editar datos</b> y rellena el bloque «Convocatoria».</div>';
+  else h += '<div class="cv-res"><span class="cv-eqp">' + eqpIconos(c.equipacion || "1", 22) + '</span><span><b>' + eqpTexto(c.equipacion || "1") + '</b> · 🕘 Quedada <b>' + convEsc(c.hora) + '</b><br>📍 ' + convEsc(lugar) + '</span></div>' +
+            (c.nota ? '<div class="cv-nota">📝 ' + convEsc(c.nota) + '</div>' : '');
+  if (pub) {
+    var si = 0, no = [], sinR = 0;
+    convJugEquipo(p).forEach(function(j){
+      if (!(datosPartidoEdit[j.id] && datosPartidoEdit[j.id].convocado)) return;
+      var r = convRespuestas[j.id];
+      if (!r) sinR++; else if (r.asiste === false) no.push(j.nombre + " " + (j.apellidos || "") + (r.motivo ? " · " + ({lesion:"lesión",enfermedad:"enfermedad",personal:"causas personales",seleccion:"selección",otros:"otros"}[r.motivo] || r.motivo) : "")); else si++;
+    });
+    h += '<div class="cv-resp"><span>👍 <b>' + si + '</b></span><span>🚫 <b>' + no.length + '</b></span><span>⏳ <b>' + sinR + '</b> sin responder</span></div>';
+    if (no.length) h += '<div class="cv-no">' + no.map(function(n){ return '🚫 ' + convEsc(n); }).join("<br>") + '</div>';
+    if (c.publicadaEn) { var d = new Date(c.publicadaEn); h += '<div class="cv-mini">Publicada el ' + d.getDate() + '/' + (d.getMonth() + 1) + ' a las ' + String(d.getHours()).padStart(2, "0") + ':' + String(d.getMinutes()).padStart(2, "0") + (c.publicadaPor ? ' por ' + convEsc(c.publicadaPor) : '') + '</div>'; }
+  }
+  if (!pasado) {
+    if (!pub) h += '<button type="button" class="cv-btn" data-cvpub="1"' + (faltan || !nConv ? ' disabled' : '') + '>📣 Publicar y avisar a las familias</button>' +
+                   '<div class="cv-mini c">' + (nConv ? 'Se avisará a las familias de los ' + convJugEquipo(p).length + ' jugadores (convocados y no convocados).' : 'Marca primero a los convocados.') + ' Mientras no publiques, las familias no ven nada.</div>';
+    else if (hayCambios) h += '<button type="button" class="cv-btn" data-cvpub="1"' + (faltan ? ' disabled' : '') + '>📣 Avisar de los cambios</button><div class="cv-mini c">Solo se avisará a las familias afectadas' + (cam.datos ? ' (y a todos los convocados, porque han cambiado los datos de la quedada)' : '') + '.</div>';
+  }
+  el.innerHTML = h + '</div>';
+}
+async function convPublicar() {
+  var p = partidoActual; if (!p) return;
+  var c = Object.assign({}, p.convocatoria || {}), lugar = convLugarFinal(p);
+  if (!c.hora || !lugar) { toast("Faltan la hora o el lugar de quedada", "error"); return; }
+  try { if (minutosLibresEquipo() < 0) { toast("Hay minutos de más: corrígelos antes de publicar", "error"); return; } } catch(e0) {}
+  var lista = convJugEquipo(p), primera = c.estado !== "publicada", cam = primera ? null : convCambios(p);
+  var conv = function(j){ return !!(datosPartidoEdit[j.id] && datosPartidoEdit[j.id].convocado); };
+  var destinos = [];
+  if (primera) lista.forEach(function(j){ destinos.push({ j: j, tipo: conv(j) ? "si" : "no" }); });
+  else {
+    var ids = {};
+    cam.jug.forEach(function(j){ ids[j.id] = 1; destinos.push({ j: j, tipo: conv(j) ? "ahora_si" : "ahora_no" }); });
+    if (cam.datos) lista.forEach(function(j){ if (!ids[j.id] && conv(j)) destinos.push({ j: j, tipo: "datos" }); });
+  }
+  if (!destinos.length) { toast("No hay cambios que avisar"); return; }
+  if (!confirm(primera ? "¿Publicar la convocatoria y avisar a " + destinos.length + " familias?" : "¿Avisar de los cambios a " + destinos.length + " familia" + (destinos.length > 1 ? "s" : "") + "?")) return;
+  var btn = document.querySelector("[data-cvpub]"); if (btn) { btn.disabled = true; btn.textContent = "Publicando…"; }
+  var av = {}; lista.forEach(function(j){ av[j.id] = conv(j); });
+  c.estado = "publicada"; c.avisados = av; c.publicadoDatos = { equipacion: c.equipacion || "1", hora: c.hora, lugar: lugar, nota: c.nota || "" };
+  if (primera) c.publicadaEn = new Date().toISOString(); else c.actualizadaEn = new Date().toISOString();
+  c.publicadaPor = c.publicadaPor || coachData.nombre || "";
+  try {
+    await updateDoc(doc(db, "partidos", p.id), { jugadas: datosPartidoEdit, convocatoria: c, actualizado_en: Timestamp.now() });
+    p.jugadas = JSON.parse(JSON.stringify(datosPartidoEdit)); p.convocatoria = c;
+    var pAct = partidosEquipo.find(function(x){ return x.id === p.id; }); if (pAct && pAct !== p) { pAct.jugadas = p.jugadas; pAct.convocatoria = c; }
+  } catch(e) { toast("Error: " + (e.message || e), "error"); convPanelPintar(); return; }
+  var dia = convFechaLarga(p.fecha), rival = p.rival || "", eqT = eqpTexto(c.equipacion || "1");
+  var tit = primera ? "📣 Convocatoria · " + (p.equipo || "") : "📣 Cambio en la convocatoria";
+  await Promise.all(destinos.map(async function(d){
+    var n = d.j.nombre, m;
+    if (d.tipo === "si") m = n + " está convocado para el " + dia + " vs " + rival + ". Quedada " + c.hora + " · " + eqT + ".";
+    else if (d.tipo === "no") m = n + " no está convocado esta jornada (" + dia + " vs " + rival + ").";
+    else if (d.tipo === "ahora_si") m = n + " ahora SÍ está convocado para el " + dia + " vs " + rival + ". Quedada " + c.hora + " · " + eqT + ".";
+    else if (d.tipo === "ahora_no") m = n + " finalmente no está convocado para el " + dia + " vs " + rival + ".";
+    else m = "Nuevos datos para el " + dia + ": quedada " + c.hora + " · " + eqT + " · " + lugar + ".";
+    try {
+      await addDoc(collection(db, "notificaciones"), { tipo: "convocatoria", titulo: tit, mensaje: m, destinatario: d.j.id, alumnoId: d.j.id,
+        alumnoNombre: d.j.nombre + " " + (d.j.apellidos || ""), partidoId: p.id, remitente: coachData.nombre || "Entrenador", leidasPor: {}, creadoEn: Timestamp.now() });
+    } catch(e1) {}
+    try { await enviarPushCoach(d.j.id, tit, m, "convocatoria"); } catch(e2) {}
+  }));
+  toast("✅ " + (primera ? "Convocatoria publicada" : "Cambios avisados") + " · " + destinos.length + " familias", "ok");
+  convPanelPintar();
+}
+(function conectarConvPanel(){
+  var el = document.getElementById("convPanel"); if (!el) return;
+  el.addEventListener("click", function(ev){ if (ev.target.closest("[data-cvpub]")) convPublicar(); });
+})();
+
 // ── DETALLE PARTIDO ──
 function abrirDetallePartido(p) {
   asegurarMedico().then(function(){ if (partidoActualId === p.id) { try { renderListaJugadoresPartido(); actualizarContadores(); } catch(e) {} } });
@@ -6734,6 +6968,7 @@ function abrirDetallePartido(p) {
   renderCabeceraPartido();
   renderListaJugadoresPartido();
   actualizarContadores();
+  try { eqpCargarCfg().then(convPanelPintar); convCargarRespuestas(p); } catch(eCv) {}
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
@@ -6901,6 +7136,7 @@ function sumaMinutos() {
 }
 
 function actualizarContadores() {
+  try { setTimeout(convPanelPintar, 0); } catch(eCv) {}
   var cat = getInfoPartidoActual();
   var tope = cat.duracion * cat.jugadores_en_campo;
   var suma = sumaMinutos();
